@@ -46,6 +46,7 @@ public class MenuScene {
 	
 	// CAR
 	private int lane;
+	private int herpderp;
 	
 	public MenuScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager) {
 		this.activity = activity;

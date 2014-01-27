@@ -27,6 +27,8 @@ import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
 
 public class MenuScene {
 	
+	// troll
+	
 	private LayoutGameActivity activity;
 	private Engine engine;
 	private Camera camera;
@@ -67,7 +69,6 @@ public class MenuScene {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		carTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTA, this.activity, "player.png");
 		map.loadResources(menuTA);
-		
 		
 		try {
 			menuTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 1));

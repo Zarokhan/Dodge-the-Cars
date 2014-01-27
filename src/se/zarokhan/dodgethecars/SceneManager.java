@@ -59,9 +59,9 @@ public class SceneManager {
 		return splashScene;
 	}
 	
-	public Scene createMenuScene() {
+	public org.andengine.entity.scene.menu.MenuScene createMenuScene() {
 		menuScene = new org.andengine.entity.scene.menu.MenuScene(camera);
-		menuScene.attachChild((IEntity) menuSceneC.createScene());
+		menuScene.setChildScene(menuSceneC.createScene());
 		return menuScene;
 	}
 	

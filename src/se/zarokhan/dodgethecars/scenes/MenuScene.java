@@ -27,8 +27,6 @@ import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
 
 public class MenuScene {
 	
-	// troll
-	
 	private LayoutGameActivity activity;
 	private Engine engine;
 	private Camera camera;

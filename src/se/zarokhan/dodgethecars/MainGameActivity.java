@@ -78,7 +78,7 @@ public class MainGameActivity extends LayoutGameActivity{
 		}
 		pOnPopulateSceneCallback.onPopulateSceneFinished();
 	}
-
+	
 	@Override
 	protected int getLayoutID() {
 		return R.layout.activity_main_game;

@@ -6,9 +6,15 @@ import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.MoveModifier;
-import org.andengine.entity.scene.Scene;
+import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
+import org.andengine.entity.scene.menu.item.IMenuItem;
+import org.andengine.entity.scene.menu.item.SpriteMenuItem;
+import org.andengine.entity.scene.menu.item.decorator.ScaleMenuItemDecorator;
 import org.andengine.entity.sprite.Sprite;
-import org.andengine.input.touch.TouchEvent;
+import org.andengine.entity.text.Text;
+import org.andengine.entity.text.TextOptions;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -19,6 +25,10 @@ import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder
 import org.andengine.opengl.texture.bitmap.BitmapTextureFormat;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.LayoutGameActivity;
+import org.andengine.util.HorizontalAlign;
+import org.andengine.util.color.Color;
+
+import android.graphics.Typeface;
 
 import se.zarokhan.dodgethecars.GameManager;
 import se.zarokhan.dodgethecars.SceneManager;
@@ -26,6 +36,13 @@ import se.zarokhan.dodgethecars.SceneManager.AllScenes;
 import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
 
 public class MenuScene {
+	
+	private final static float onSelected = 1f;
+	private final static float unSelected = 1f;
+	
+	private final static int PLAY_BTN_ID = 0;
+	private final static int HOWTO_BTN_ID = 1;
+	private final static int CREDITS_BTN_ID = 2;
 	
 	private LayoutGameActivity activity;
 	private Engine engine;
@@ -44,7 +61,9 @@ public class MenuScene {
 	
 	// CAR
 	private int lane;
-	private int herpderp;
+	
+	// TEXT
+	private Font font;
 	
 	public MenuScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager) {
 		this.activity = activity;
@@ -69,6 +88,9 @@ public class MenuScene {
 		carTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTA, this.activity, "player.png");
 		map.loadResources(menuTA);
 		
+		font = FontFactory.create(this.activity.getFontManager(), this.activity.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 32*3f);
+		font.load();
+		
 		try {
 			menuTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 1));
 			menuTA.load();
@@ -89,26 +111,46 @@ public class MenuScene {
 		map.loadMap(menuScene);
 		spawnCar(screenWidth, screenHeight);
 		
-		// Sprites
+		// BANNER/LOGO
 		final Sprite banner = new Sprite((screenWidth - dodgecarsTR.getWidth())/2, screenHeight/6, dodgecarsTR, this.activity.getVertexBufferObjectManager());
-		Sprite buttonPlay = new Sprite((screenWidth - playTR.getWidth())/2, screenHeight/6 * 2, playTR, this.activity.getVertexBufferObjectManager()){
-			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
-				if(touchEvent.isActionDown()) {
+		
+		// GAME VERSION
+		final Text GAME_STAGE = new Text(GameManager.lengthOfTile * 6 + 18, 0, font, GameManager.GAME_VERSION, new TextOptions(HorizontalAlign.LEFT), this.activity.getVertexBufferObjectManager());
+		
+		// MENU ITEMS
+		final IMenuItem buttonPlay = new ScaleMenuItemDecorator(new SpriteMenuItem(PLAY_BTN_ID, playTR, this.activity.getVertexBufferObjectManager()), unSelected, onSelected);
+		final IMenuItem buttonHowto = new ScaleMenuItemDecorator(new SpriteMenuItem(HOWTO_BTN_ID, howtoTR, this.activity.getVertexBufferObjectManager()), unSelected, onSelected);
+		final IMenuItem buttonCredits = new ScaleMenuItemDecorator(new SpriteMenuItem(CREDITS_BTN_ID, creditsTR, this.activity.getVertexBufferObjectManager()), unSelected, onSelected);
+		buttonPlay.setPosition((screenWidth - playTR.getWidth())/2, screenHeight/6 * 2);
+		buttonHowto.setPosition((screenWidth - howtoTR.getWidth())/2, screenHeight/6 * 3);
+		buttonCredits.setPosition((screenWidth - creditsTR.getWidth())/2, screenHeight/6 * 4);
+		
+		menuScene.attachChild(banner);
+		menuScene.attachChild(GAME_STAGE);
+		menuScene.addMenuItem(buttonPlay);
+		menuScene.addMenuItem(buttonHowto);
+		menuScene.addMenuItem(buttonCredits);
+		
+		menuScene.setOnMenuItemClickListener(new IOnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClicked(org.andengine.entity.scene.menu.MenuScene pMenuScene, IMenuItem pMenuItem, float pMenuItemLocalX, float pMenuItemLocalY) {
+				
+				switch(pMenuItem.getID()){
+				case PLAY_BTN_ID:
 					sceneManager.loadGameResources();
 					sceneManager.createGameScene();
 					sceneManager.setCurrentSence(AllScenes.GAME);
+					break;
+				case HOWTO_BTN_ID:
+					break;
+				case CREDITS_BTN_ID:
+					break;
 				}
-				return true;
-			};
-		};
-		final Sprite buttonHowto = new Sprite((screenWidth - howtoTR.getWidth())/2, screenHeight/6 * 3, howtoTR, this.activity.getVertexBufferObjectManager());
-		final Sprite buttonCredits = new Sprite((screenWidth - creditsTR.getWidth())/2, screenHeight/6 * 4, creditsTR, this.activity.getVertexBufferObjectManager());
+				
+				return false;
+			}
+		});
 		
-		menuScene.registerTouchArea(buttonPlay);
-		menuScene.attachChild(banner);
-		menuScene.attachChild(buttonPlay);
-		menuScene.attachChild(buttonHowto);
-		menuScene.attachChild(buttonCredits);
 		return menuScene;
 	}
 

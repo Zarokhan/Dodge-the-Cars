@@ -1,5 +1,5 @@
 package se.zarokhan.dodgethecars.scenes;
 
-public class HowtoScene {
+public class ScoreScreen {
 
 }

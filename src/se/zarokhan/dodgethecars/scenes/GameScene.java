@@ -32,6 +32,8 @@ import org.andengine.util.color.Color;
 import android.graphics.Typeface;
 import android.util.Log;
 import se.zarokhan.dodgethecars.GameManager;
+import se.zarokhan.dodgethecars.SceneManager;
+import se.zarokhan.dodgethecars.scenes.stuff.EnemyControl;
 import se.zarokhan.dodgethecars.scenes.stuff.Player;
 import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
 
@@ -43,7 +45,8 @@ public class GameScene {
 	
 	private WorldMap map;
 	private Player player;
-	//private Input input;
+	private SceneManager sceneManager;
+	private EnemyControl enemyControl;
 	private Random r;
 	
 	private Scene scene;
@@ -57,25 +60,20 @@ public class GameScene {
 	private Font font;
 	private Text textScore;
 	
-	// ENEMY
-	private Sprite enemy[];
-	private int speed[] = new int[GameManager.INITIAL_ENEMIES];
-	private int lane[] = new int[GameManager.INITIAL_ENEMIES];
-	private int minSpeed = 2; // minimum speed
-	private int ranSpeed = 3; // Max random speed
-	
 	// HUD
 	HUD hud;
 	private Sprite hearth[];
 	
-	public GameScene(LayoutGameActivity activity, Engine engine, Camera camera) {
+	public GameScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager) {
 		this.activity = activity;
 		this.engine = engine;
 		this.camera = camera;
+		this.sceneManager = sceneManager;
 		
 		map = new WorldMap(activity, camera, 22);
 		r = new Random();
 		player = new Player(activity);
+		enemyControl = new EnemyControl(activity, camera, r);
 		//input = new Input(activity, camera, player);
 	}
 
@@ -94,7 +92,7 @@ public class GameScene {
 		arrowTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "arrow.png");
 		hearthTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "hearth.png");
 		playerTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "player.png");
-		
+		enemyControl.loadResources(entityTA);
 		
 		try {
 			mapTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 1));
@@ -118,9 +116,9 @@ public class GameScene {
 		
 		map.loadMap(scene);
 		player.loadPlayer(scene, camera.getWidth());
-		enemyControl();
+		enemyControl.init(scene);
+		//enemyControl();
 		initCollision();
-		//input.loadInput(scene);
 		initHUD();
 		return scene;
 	}
@@ -145,10 +143,10 @@ public class GameScene {
 					float diffY[] = new float[GameManager.INITIAL_ENEMIES];
 					// Check collision
 					for(int i = 0; i < GameManager.getInstance().getEnemySpawned(); i++){
-						diffX[i] = Math.abs( (player.getSprite().getX() +  player.getSprite().getWidth()/2 ) - (enemy[i].getX() + enemy[i].getWidth()/2 ));
-						diffY[i] = Math.abs( (player.getSprite().getY() +  player.getSprite().getHeight()/2 ) - (enemy[i].getY() + enemy[i].getHeight()/2 ));
+						diffX[i] = Math.abs( (player.getSprite().getX() +  player.getSprite().getWidth()/2 ) - (enemyControl.enemy[i].getX() + enemyControl.enemy[i].getWidth()/2 ));
+						diffY[i] = Math.abs( (player.getSprite().getY() +  player.getSprite().getHeight()/2 ) - (enemyControl.enemy[i].getY() + enemyControl.enemy[i].getHeight()/2 ));
 						
-						if(diffX[i] < 20 + (player.getSprite().getWidth()/2 + enemy[i].getWidth()/3) && diffY[i] < (player.getSprite().getHeight()/2 + enemy[i].getHeight()/3)){
+						if(diffX[i] < 20 + (player.getSprite().getWidth()/2 + enemyControl.enemy[i].getWidth()/3) && diffY[i] < (player.getSprite().getHeight()/2 + enemyControl.enemy[i].getHeight()/3)){
 							checkHealth(i);
 						}
 					}
@@ -167,7 +165,7 @@ public class GameScene {
 		}else{
 			removeSprite(hearth[GameManager.getInstance().getHealth() - 1]);
 			GameManager.getInstance().removeHealth();
-			resetEnemy(enemyID);
+			enemyControl.resetEnemy(enemyID, scene);
 		}
 	}
 	
@@ -181,108 +179,7 @@ public class GameScene {
 		GameManager.getInstance().addScore(GameManager.POINTS_FOR_STANDARDENEMY);
 		Log.i("Score: ", "" + GameManager.getInstance().getScore());
 	}
-	
-	//
-	//	Enemy Control
-	//
-	
-	private IUpdateHandler handler;
-	
-	private void enemyControl() {
-		enemy = new Sprite[GameManager.INITIAL_ENEMIES];
 		
-		handler = new IUpdateHandler() {
-			
-			@Override
-			public void reset() {
-				
-			}
-			
-			@Override
-			public void onUpdate(float pSecondsElapsed) {
-				// SPAWN FIRST ENEMY
-				if(GameManager.getInstance().getScore() >= 0 && GameManager.getInstance().getEnemySpawned() == 0){
-					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true);
-				}
-				// SPAWN SECOND ENEMY
-				if(GameManager.getInstance().getScore() >= 30 && GameManager.getInstance().getEnemySpawned() == 1){
-					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true);
-				}
-				// SPAWN THIRD ENEMY
-				if(GameManager.getInstance().getScore() >= 40 && GameManager.getInstance().getEnemySpawned() == 2){
-					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true);
-				}
-				// SPAWN FORUTH ENEMY
-				if(GameManager.getInstance().getScore() >= 80 && GameManager.getInstance().getEnemySpawned() == 3){
-					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true);
-				}
-				// SPAWN FIFTH ENEMY
-				if(GameManager.getInstance().getScore() >= 120 && GameManager.getInstance().getEnemySpawned() == 4){
-					scene.unregisterUpdateHandler(handler);
-					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true);
-					ranSpeed -= 1;
-					Log.i("Handler", "Unregistered");
-				}
-			}
-		};
-		
-		scene.registerUpdateHandler(handler);
-		Log.i("EnemyControl", "Loaded");
-	}
-	
-	private void spawnEnemy(final int enemyID, boolean newEnemy){
-		speed[enemyID] = r.nextInt(ranSpeed) + minSpeed;
-		lane[enemyID] = newLane(enemyID);
-		enemy[enemyID] = new Sprite(-300, 0, playerTR, this.activity.getVertexBufferObjectManager());
-		MoveModifier moveModifier = new MoveModifier(speed[enemyID], -GameManager.lengthOfTile * 2, camera.getWidth() + GameManager.lengthOfTile*2, lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile){
-			@Override
-			protected void onModifierFinished(IEntity pItem) {
-				super.onModifierFinished(pItem);
-				speed[enemyID] = r.nextInt(ranSpeed) + minSpeed;
-				lane[enemyID] = newLane(enemyID);
-				addScore();
-				this.reset(speed[enemyID], -GameManager.lengthOfTile * 2, camera.getWidth() + GameManager.lengthOfTile*2, lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile);
-			}
-		};
-		enemy[enemyID].registerEntityModifier(moveModifier);
-		scene.attachChild(enemy[enemyID]);
-		if(newEnemy)GameManager.getInstance().enemySpawned();
-		Log.i("SPAWNED: ", "ENEMY");
-	}
-	
-	private int newLane(int enemyID){
-		int lane = r.nextInt(6)+1;
-		
-		// CHECK IF ONLY CAR
-		if(GameManager.getInstance().getEnemySpawned() < 2){
-			return lane;
-		}else{
-			// CHECK IF ANY CAR IS ON THAT LANE
-			for(int i = 0; i < GameManager.getInstance().getEnemySpawned(); i++){
-				if(i == enemyID)continue;
-				if(this.lane[i] == lane){
-					// CHECK IF CAR IS OVER HALF THE MAP
-					if(enemy[i].getX() >= camera.getWidth()/2){
-						lane = r.nextInt(6)+1;
-						i = 0;
-					}else{
-						return lane;
-					}
-				}else{
-					return lane;
-				}
-			}
-		}
-		
-		return lane;
-	}
-	
-	private void resetEnemy(int enemyID) {
-		Log.i("Reset", "Enemy");
-		removeSprite(enemy[enemyID]);
-		spawnEnemy(enemyID, false);
-	}
-	
 	//
 	//	HUD
 	//

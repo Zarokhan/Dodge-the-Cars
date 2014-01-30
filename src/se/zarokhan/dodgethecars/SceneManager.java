@@ -2,12 +2,8 @@ package se.zarokhan.dodgethecars;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
-import org.andengine.entity.IEntity;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.Background;
 import org.andengine.ui.activity.LayoutGameActivity;
-import org.andengine.util.color.Color;
-
 import se.zarokhan.dodgethecars.scenes.GameScene;
 import se.zarokhan.dodgethecars.scenes.MenuScene;
 import se.zarokhan.dodgethecars.scenes.SplashScene;
@@ -36,7 +32,7 @@ public class SceneManager {
 		
 		splashSceneC = new SplashScene(this.activity, this.engine, this.camera);
 		menuSceneC = new MenuScene(this.activity, this.engine, this.camera, this);
-		gameSceneC = new GameScene(this.activity, this.engine, this.camera);
+		gameSceneC = new GameScene(this.activity, this.engine, this.camera, this);
 	}
 	
 	// RESOURCES

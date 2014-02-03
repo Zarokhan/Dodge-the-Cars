@@ -6,8 +6,6 @@ import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.IUpdateHandler;
-import org.andengine.entity.IEntity;
-import org.andengine.entity.modifier.MoveModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
@@ -33,6 +31,7 @@ import android.graphics.Typeface;
 import android.util.Log;
 import se.zarokhan.dodgethecars.GameManager;
 import se.zarokhan.dodgethecars.SceneManager;
+import se.zarokhan.dodgethecars.SceneManager.AllScenes;
 import se.zarokhan.dodgethecars.scenes.stuff.EnemyControl;
 import se.zarokhan.dodgethecars.scenes.stuff.Player;
 import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
@@ -54,7 +53,7 @@ public class GameScene {
 	// TEXTURE
 	private BuildableBitmapTextureAtlas mapTA;
 	private BuildableBitmapTextureAtlas entityTA;
-	private ITextureRegion playerTR, hearthTR, arrowTR;
+	private ITextureRegion hearthTR, arrowTR;
 	
 	// TEXT
 	private Font font;
@@ -91,7 +90,6 @@ public class GameScene {
 		player.loadResources(entityTA);
 		arrowTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "arrow.png");
 		hearthTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "hearth.png");
-		playerTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "player.png");
 		enemyControl.loadResources(entityTA);
 		
 		try {
@@ -112,6 +110,7 @@ public class GameScene {
 	}
 
 	public Scene createScene() {
+		scene = null;
 		scene = new Scene();
 		
 		map.loadMap(scene);
@@ -158,10 +157,7 @@ public class GameScene {
 	
 	private void checkHealth(int enemyID){
 		if(GameManager.getInstance().getHealth() == 0){
-			textScore = new Text(0, 0, font, "Score: " + GameManager.getInstance().getScore(), "Score: 1234567890".length(), this.activity.getVertexBufferObjectManager());
-			hud.attachChild(textScore);
-			
-			engine.stop();
+			afterDeath();
 		}else{
 			removeSprite(hearth[GameManager.getInstance().getHealth() - 1]);
 			GameManager.getInstance().removeHealth();
@@ -169,6 +165,18 @@ public class GameScene {
 		}
 	}
 	
+	private void afterDeath() {
+		textScore = new Text(0, 0, font, "Score: " + GameManager.getInstance().getScore(), "Score: 1234567890".length(), this.activity.getVertexBufferObjectManager());
+		hud.attachChild(textScore);
+		GameManager.getInstance().resetGame();
+		camera.setHUD(null);
+		scene.clearChildScene();
+		scene.clearEntityModifiers();
+		scene.clearUpdateHandlers();
+		sceneManager.createMenuScene();
+		sceneManager.setCurrentSence(AllScenes.MENU);
+	}
+
 	private void removeSprite(Sprite sprite) {
 		sprite.detachSelf();
 		sprite.dispose();
@@ -193,10 +201,19 @@ public class GameScene {
 		hud.setRotation(270);
 		hud.setPosition(0, camera.getHeight());
 		
+		// ADD TRANSPARENT BAR ATT THE TOP
+		final Rectangle top = new Rectangle(0, 0, screenWidth, GameManager.lengthOfTile, this.activity.getVertexBufferObjectManager());
+		top.setColor(new Color(Color.BLACK));
+		top.setAlpha(200);
+		hud.attachChild(top);
+		
 		// ADD THE HEARTHS
+		final Text hpText = new Text(0, 0, font, "HP:", this.activity.getVertexBufferObjectManager());
+		hpText.setColor(new Color(255, 255, 254));
+		hud.attachChild(hpText);
 		hearth = new Sprite[GameManager.getInstance().getHealth()];
 		for(int i = 0; i < GameManager.getInstance().getHealth(); i++){
-			hearth[i] = new Sprite(i * GameManager.lengthOfTile, 0, hearthTR, this.activity.getVertexBufferObjectManager());
+			hearth[i] = new Sprite(GameManager.lengthOfTile + (i * GameManager.lengthOfTile), 0, hearthTR, this.activity.getVertexBufferObjectManager());
 			hearth[i].setScale(0.7f);
 			hud.attachChild(hearth[i]);
 		}
@@ -211,7 +228,7 @@ public class GameScene {
 		final Sprite rightButton = new Sprite(camera.getHeight()-arrowTR.getWidth(), camera.getWidth()/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
 		rightButton.setRotation(180);
 		
-		final Rectangle left = new Rectangle(0, 0, screenWidth/2, screenHeight, this.activity.getVertexBufferObjectManager()){
+		final Rectangle left = new Rectangle(0, GameManager.lengthOfTile, screenWidth/2, screenHeight, this.activity.getVertexBufferObjectManager()){
 			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
 				if(touchEvent.isActionDown() && player.playerY < GameManager.lengthOfTile * 6) {
 					player.moveCarNorth();
@@ -219,7 +236,7 @@ public class GameScene {
 				return true;
 			};
 		};
-		final Rectangle right = new Rectangle(screenWidth/2, 0, screenWidth/2, screenHeight, this.activity.getVertexBufferObjectManager()){
+		final Rectangle right = new Rectangle(screenWidth/2, GameManager.lengthOfTile, screenWidth/2, screenHeight, this.activity.getVertexBufferObjectManager()){
 			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
 				if(touchEvent.isActionDown() && player.playerY > GameManager.lengthOfTile) {
 					player.moveCarSouth();

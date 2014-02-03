@@ -20,8 +20,6 @@ public class MainGameActivity extends LayoutGameActivity{
 	Camera camera;
 	
 	private int splashSeconds = 1;
-	private boolean debugMode = false;
-	private boolean toMenuAfterSplash = true;
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -37,45 +35,27 @@ public class MainGameActivity extends LayoutGameActivity{
 			throws Exception {
 		
 		sceneManager = new SceneManager(this, mEngine, camera);
-		if(debugMode){
-			sceneManager.loadGameResources();
-		}else{
-			sceneManager.loadSplashResources();
-		}
+		sceneManager.loadSplashResources();
 		
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
 	}
 
 	@Override
-	public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback)
-			throws Exception {
-		if(debugMode){
-			pOnCreateSceneCallback.onCreateSceneFinished(sceneManager.createGameScene());
-		}else{
-			pOnCreateSceneCallback.onCreateSceneFinished(sceneManager.createSplashScene());
-		}
+	public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) throws Exception {
+		pOnCreateSceneCallback.onCreateSceneFinished(sceneManager.createSplashScene());
 	}
 
 	@Override
-	public void onPopulateScene(Scene pScene,
-			OnPopulateSceneCallback pOnPopulateSceneCallback) throws Exception {
-		if(!debugMode){
-			mEngine.registerUpdateHandler(new TimerHandler(splashSeconds, new ITimerCallback() {
-				@Override
-				public void onTimePassed(TimerHandler pTimerHandler) {
-					mEngine.unregisterUpdateHandler(pTimerHandler);
-					if(toMenuAfterSplash){
-						sceneManager.loadMenuResources();
-						sceneManager.createMenuScene();
-						sceneManager.setCurrentSence(AllScenes.MENU);
-					}else{
-						sceneManager.loadGameResources();
-						sceneManager.createGameScene();
-						sceneManager.setCurrentSence(AllScenes.GAME);
-					}
-				}
-			}));
-		}
+	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback) throws Exception {
+		mEngine.registerUpdateHandler(new TimerHandler(splashSeconds, new ITimerCallback() {
+			@Override
+			public void onTimePassed(TimerHandler pTimerHandler) {
+				mEngine.unregisterUpdateHandler(pTimerHandler);
+					sceneManager.loadMenuResources();
+					sceneManager.createMenuScene();
+					sceneManager.setCurrentSence(AllScenes.MENU);
+			}
+		}));
 		pOnPopulateSceneCallback.onPopulateSceneFinished();
 	}
 	

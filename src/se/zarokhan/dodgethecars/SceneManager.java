@@ -56,6 +56,7 @@ public class SceneManager {
 	}
 	
 	public org.andengine.entity.scene.menu.MenuScene createMenuScene() {
+		
 		menuScene = new org.andengine.entity.scene.menu.MenuScene(camera);
 		menuScene.setChildScene(menuSceneC.createScene());
 		return menuScene;

@@ -4,13 +4,8 @@ public class GameManager {
 
 	private static GameManager INSTANCE;
 	
-	public static final String GAME_VERSION = "Alpha";
+	public static final String GAME_VERSION = "BETA";
 	public static final int lengthOfTile = 135;
-	
-	public static final int WAITING_FOR_TOUCH_PHASE = 0;
-	public static final int PLAYING_PHASE = 1;
-	public static final int CRASH_PHASE = 2;
-	public static final int RESET_PHASE = 3;
 	
 	public static final int INITIAL_PHASE = 0;
 	public static final int INITIAL_SCORE = 0;

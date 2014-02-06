@@ -4,8 +4,12 @@ import java.util.Random;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.handler.timer.ITimerCallback;
+import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.MoveModifier;
+import org.andengine.entity.modifier.RotationModifier;
+import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
 import org.andengine.entity.scene.menu.item.IMenuItem;
 import org.andengine.entity.scene.menu.item.SpriteMenuItem;
@@ -41,7 +45,7 @@ public class MenuScene {
 	private final static float unSelected = 1f;
 	
 	private final static int PLAY_BTN_ID = 0;
-	private final static int HOWTO_BTN_ID = 1;
+	private final static int HIGHSCORE_BTN_ID = 1;
 	private final static int CREDITS_BTN_ID = 2;
 	
 	private LayoutGameActivity activity;
@@ -56,14 +60,23 @@ public class MenuScene {
 	private org.andengine.entity.scene.menu.MenuScene menuScene;
 	
 	// TEXTURE
-	private BuildableBitmapTextureAtlas menuTA;
-	private TextureRegion dodgecarsTR, playTR, howtoTR, creditsTR, grassTR, carTR;
+	private BuildableBitmapTextureAtlas menuTA, mapTA;
+	private TextureRegion dodgecarsTR, playTR, highscoreTR, creditsTR, carTR;
 	
 	// CAR
 	private int lane;
 	
 	// TEXT
 	private Font font;
+	
+	// Banner
+	private float startScale = 0.8f;
+	private float endScale = 0.95f;
+	private int scaleDuration = 5;
+	private int startRot = -20;
+	private int endRot = 10;
+	private int rotDuration = 5;
+	private boolean scaBan, rotBan;
 	
 	public MenuScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager) {
 		this.activity = activity;
@@ -79,21 +92,24 @@ public class MenuScene {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/menu/");
 		menuTA = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		
-		dodgecarsTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTA, this.activity, "dodgecars.png");
+		dodgecarsTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTA, this.activity, "dodgethecars.png");
 		playTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTA, this.activity, "play.png");
-		howtoTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTA, this.activity, "howto.png");
+		highscoreTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTA, this.activity, "highscore.png");
 		creditsTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTA, this.activity, "credits.png");
 		
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		carTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTA, this.activity, "player.png");
-		map.loadResources(menuTA);
+		mapTA = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		carTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mapTA, this.activity, "player.png");
+		map.loadResources(mapTA);
 		
 		font = FontFactory.create(this.activity.getFontManager(), this.activity.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 32*3f);
 		font.load();
 		
 		try {
-			menuTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 1));
+			menuTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
 			menuTA.load();
+			mapTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 1));
+			mapTA.load();
 		} catch (TextureAtlasBuilderException e) {
 			e.printStackTrace();
 		}
@@ -111,24 +127,52 @@ public class MenuScene {
 		map.loadMap(menuScene);
 		spawnCar(screenWidth, screenHeight);
 		
-		// BANNER/LOGO
-		final Sprite banner = new Sprite((screenWidth - dodgecarsTR.getWidth())/2, screenHeight/6, dodgecarsTR, this.activity.getVertexBufferObjectManager());
+		// BANNER/LOGO & banner animation
+		final Sprite banner = new Sprite((screenWidth - dodgecarsTR.getWidth())/2, (screenHeight/7)/2, dodgecarsTR, this.activity.getVertexBufferObjectManager());
+		rotBan = false;
+		scaBan = false;
+		banner.registerEntityModifier(new ScaleModifier(scaleDuration, startScale, endScale){
+			@Override
+			protected void onModifierFinished(IEntity pItem) {
+				super.onModifierFinished(pItem);
+				if(scaBan){
+					this.reset(scaleDuration, startScale, endScale, startScale, endScale);
+					scaBan = !scaBan;
+				}else{
+					this.reset(scaleDuration, endScale, startScale, endScale, startScale);
+					scaBan = !scaBan;
+				}
+			}
+		});
+		banner.registerEntityModifier(new RotationModifier(rotDuration, startRot, endRot){
+			@Override
+			protected void onModifierFinished(IEntity pItem) {
+				super.onModifierFinished(pItem);
+				if(!rotBan){
+					this.reset(rotDuration, endRot, startRot);
+					rotBan = !rotBan;
+				}else{
+					this.reset(rotDuration, startRot, endRot);
+					rotBan = !rotBan;
+				}
+			}
+		});
 		
 		// GAME VERSION
 		final Text GAME_STAGE = new Text(GameManager.lengthOfTile * 6 + 18, 0, font, GameManager.GAME_VERSION, new TextOptions(HorizontalAlign.LEFT), this.activity.getVertexBufferObjectManager());
 		
 		// MENU ITEMS
 		final IMenuItem buttonPlay = new ScaleMenuItemDecorator(new SpriteMenuItem(PLAY_BTN_ID, playTR, this.activity.getVertexBufferObjectManager()), unSelected, onSelected);
-		final IMenuItem buttonHowto = new ScaleMenuItemDecorator(new SpriteMenuItem(HOWTO_BTN_ID, howtoTR, this.activity.getVertexBufferObjectManager()), unSelected, onSelected);
+		final IMenuItem buttonHighScore = new ScaleMenuItemDecorator(new SpriteMenuItem(HIGHSCORE_BTN_ID, highscoreTR, this.activity.getVertexBufferObjectManager()), unSelected, onSelected);
 		final IMenuItem buttonCredits = new ScaleMenuItemDecorator(new SpriteMenuItem(CREDITS_BTN_ID, creditsTR, this.activity.getVertexBufferObjectManager()), unSelected, onSelected);
-		buttonPlay.setPosition((screenWidth - playTR.getWidth())/2, screenHeight/6 * 2);
-		buttonHowto.setPosition((screenWidth - howtoTR.getWidth())/2, screenHeight/6 * 3);
-		buttonCredits.setPosition((screenWidth - creditsTR.getWidth())/2, screenHeight/6 * 4);
+		buttonPlay.setPosition((screenWidth - playTR.getWidth())/2, screenHeight/7 * 3);
+		buttonHighScore.setPosition((screenWidth - highscoreTR.getWidth())/2, screenHeight/7 * 4);
+		buttonCredits.setPosition((screenWidth - creditsTR.getWidth())/2, screenHeight/7 * 5);
 		
 		menuScene.attachChild(banner);
 		menuScene.attachChild(GAME_STAGE);
 		menuScene.addMenuItem(buttonPlay);
-		menuScene.addMenuItem(buttonHowto);
+		menuScene.addMenuItem(buttonHighScore);
 		menuScene.addMenuItem(buttonCredits);
 		
 		menuScene.setOnMenuItemClickListener(new IOnMenuItemClickListener() {
@@ -141,7 +185,7 @@ public class MenuScene {
 					sceneManager.createGameScene();
 					sceneManager.setCurrentSence(AllScenes.GAME);
 					break;
-				case HOWTO_BTN_ID:
+				case HIGHSCORE_BTN_ID:
 					break;
 				case CREDITS_BTN_ID:
 					break;

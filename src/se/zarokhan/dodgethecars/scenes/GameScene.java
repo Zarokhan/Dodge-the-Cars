@@ -53,11 +53,10 @@ public class GameScene {
 	// TEXTURE
 	private BuildableBitmapTextureAtlas mapTA;
 	private BuildableBitmapTextureAtlas entityTA;
-	private ITextureRegion hearthTR, arrowTR;
+	private ITextureRegion hearthTR, arrowTR, hpTR;
 	
 	// TEXT
 	private Font font;
-	private Text textScore;
 	
 	// HUD
 	HUD hud;
@@ -90,6 +89,7 @@ public class GameScene {
 		player.loadResources(entityTA);
 		arrowTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "arrow.png");
 		hearthTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "hearth.png");
+		hpTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "hp.png");
 		enemyControl.loadResources(entityTA);
 		
 		try {
@@ -166,8 +166,6 @@ public class GameScene {
 	}
 	
 	private void afterDeath() {
-		textScore = new Text(0, 0, font, "Score: " + GameManager.getInstance().getScore(), "Score: 1234567890".length(), this.activity.getVertexBufferObjectManager());
-		hud.attachChild(textScore);
 		GameManager.getInstance().resetGame();
 		camera.setHUD(null);
 		scene.clearChildScene();
@@ -202,14 +200,15 @@ public class GameScene {
 		hud.setPosition(0, camera.getHeight());
 		
 		// ADD TRANSPARENT BAR ATT THE TOP
+		/*
 		final Rectangle top = new Rectangle(0, 0, screenWidth, GameManager.lengthOfTile, this.activity.getVertexBufferObjectManager());
 		top.setColor(new Color(Color.BLACK));
-		top.setAlpha(200);
+		top.setAlpha(50);
 		hud.attachChild(top);
+		*/
 		
 		// ADD THE HEARTHS
-		final Text hpText = new Text(0, 0, font, "HP:", this.activity.getVertexBufferObjectManager());
-		hpText.setColor(new Color(255, 255, 254));
+		final Sprite hpText = new Sprite(0, (GameManager.lengthOfTile - hpTR.getHeight())/2, hpTR, this.activity.getVertexBufferObjectManager());
 		hud.attachChild(hpText);
 		hearth = new Sprite[GameManager.getInstance().getHealth()];
 		for(int i = 0; i < GameManager.getInstance().getHealth(); i++){
@@ -226,6 +225,8 @@ public class GameScene {
 		// Buttons
 		final Sprite leftButton = new Sprite(0, camera.getWidth()/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
 		final Sprite rightButton = new Sprite(camera.getHeight()-arrowTR.getWidth(), camera.getWidth()/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
+		leftButton.setScale(0.85f);
+		rightButton.setScale(0.85f);
 		rightButton.setRotation(180);
 		
 		final Rectangle left = new Rectangle(0, GameManager.lengthOfTile, screenWidth/2, screenHeight, this.activity.getVertexBufferObjectManager()){

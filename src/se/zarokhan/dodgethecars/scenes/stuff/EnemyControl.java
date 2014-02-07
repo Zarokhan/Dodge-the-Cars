@@ -24,10 +24,10 @@ public class EnemyControl {
 	private ITextureRegion playerTR;
 	// ENEMY
 	public Sprite enemy[];
-	private int speed[] = new int[GameManager.INITIAL_ENEMIES];
+	private float duration[] = new float[GameManager.INITIAL_ENEMIES];
 	private int lane[] = new int[GameManager.INITIAL_ENEMIES];
-	private int minSpeed = 2; // minimum speed
-	private int ranSpeed = 3; // Max random speed
+	private float minDuration = 1.25f; // minimum duration
+	private float maxDuration = 3.0f; // maximum duration
 	private IUpdateHandler handler;
 	private Random r;
 	
@@ -73,7 +73,6 @@ public class EnemyControl {
 				if(GameManager.getInstance().getScore() >= 120 && GameManager.getInstance().getEnemySpawned() == 4){
 					scene.unregisterUpdateHandler(handler);
 					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
-					ranSpeed -= 1;
 					Log.i("Handler", "Unregistered");
 				}
 			}
@@ -84,17 +83,17 @@ public class EnemyControl {
 	}
 	
 	private void spawnEnemy(final int enemyID, boolean newEnemy, Scene scene){
-		speed[enemyID] = r.nextInt(ranSpeed) + minSpeed;
+		duration[enemyID] = r.nextFloat() * (maxDuration - minDuration) + minDuration;
 		lane[enemyID] = newLane(enemyID);
 		enemy[enemyID] = new Sprite(-300, 0, playerTR, this.activity.getVertexBufferObjectManager());
-		MoveModifier moveModifier = new MoveModifier(speed[enemyID], -GameManager.lengthOfTile * 2, camera.getWidth() + GameManager.lengthOfTile*2, lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile){
+		MoveModifier moveModifier = new MoveModifier(duration[enemyID], -GameManager.lengthOfTile * 2, camera.getWidth() + GameManager.lengthOfTile*2, lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile){
 			@Override
 			protected void onModifierFinished(IEntity pItem) {
 				super.onModifierFinished(pItem);
-				speed[enemyID] = r.nextInt(ranSpeed) + minSpeed;
+				duration[enemyID] = r.nextFloat() * (maxDuration - minDuration) + minDuration;
 				lane[enemyID] = newLane(enemyID);
 				addScore();
-				this.reset(speed[enemyID], -GameManager.lengthOfTile * 2, camera.getWidth() + GameManager.lengthOfTile*2, lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile);
+				this.reset(duration[enemyID], -GameManager.lengthOfTile * 2, camera.getWidth() + GameManager.lengthOfTile*2, lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile);
 			}
 		};
 		enemy[enemyID].registerEntityModifier(moveModifier);
@@ -105,29 +104,19 @@ public class EnemyControl {
 	
 	public int newLane(int enemyID){
 		int lane = r.nextInt(6)+1;
-		
-		// CHECK IF ONLY CAR
-		if(GameManager.getInstance().getEnemySpawned() < 2){
-			return lane;
-		}else{
-			// CHECK IF ANY CAR IS ON THAT LANE
-			for(int i = 0; i < GameManager.getInstance().getEnemySpawned(); i++){
-				if(i == enemyID)continue;
-				if(this.lane[i] == lane){
-					// CHECK IF CAR IS OVER HALF THE MAP
-					if(enemy[i].getX() >= camera.getWidth()/2){
-						lane = r.nextInt(6)+1;
-						i = 0;
-					}else{
-						return lane;
-					}
-				}else{
-					return lane;
-				}
+		// CHECK IF FIRST CAR
+		if(GameManager.getInstance().getEnemySpawned() <= 1) return lane;
+		// CHECK IF ANY CAR IS ON THAT LANE
+		for(int searchID = 0; searchID < GameManager.getInstance().getEnemySpawned(); searchID++){
+			if(this.lane[searchID] == lane && searchID != enemyID){
+				lane = r.nextInt(6)+1;
+				searchID = 0;
+				continue;
+			}else if (searchID == GameManager.getInstance().getEnemySpawned() -1){
+				return lane;
 			}
 		}
-		
-		return lane;
+		return -GameManager.lengthOfTile;
 	}
 	
 	public void resetEnemy(int enemyID, Scene scene) {

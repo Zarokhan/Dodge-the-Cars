@@ -6,6 +6,7 @@ import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.IUpdateHandler;
+import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
@@ -61,6 +62,11 @@ public class GameScene {
 	// HUD
 	HUD hud;
 	private Sprite hearth[];
+	private ScaleModifier hearthScaleMod;
+	private float hearthStartScale = 0.8f;
+	private float hearthEndScale = 0.95f;
+	private int hearthScaleDuration = 5;
+	private boolean hearthBool = false;
 	
 	public GameScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager) {
 		this.activity = activity;
@@ -68,7 +74,7 @@ public class GameScene {
 		this.camera = camera;
 		this.sceneManager = sceneManager;
 		
-		map = new WorldMap(activity, camera, 22);
+		map = new WorldMap(activity, camera, engine, 22);
 		r = new Random();
 		player = new Player(activity);
 		enemyControl = new EnemyControl(activity, camera, r);
@@ -116,7 +122,6 @@ public class GameScene {
 		map.loadMap(scene);
 		player.loadPlayer(scene, camera.getWidth());
 		enemyControl.init(scene);
-		//enemyControl();
 		initCollision();
 		initHUD();
 		return scene;
@@ -166,11 +171,11 @@ public class GameScene {
 	}
 	
 	private void afterDeath() {
-		GameManager.getInstance().resetGame();
 		camera.setHUD(null);
 		scene.clearChildScene();
 		scene.clearEntityModifiers();
 		scene.clearUpdateHandlers();
+		GameManager.getInstance().resetGame();
 		sceneManager.createMenuScene();
 		sceneManager.setCurrentSence(AllScenes.MENU);
 	}
@@ -216,6 +221,11 @@ public class GameScene {
 			hearth[i].setScale(0.7f);
 			hud.attachChild(hearth[i]);
 		}
+		
+		/*
+		hearthScaleMod = new ScaleModifier(hearthScaleDuration, hearthStartScale, hearthEndScale);
+		hearth[GameManager.getInstance().getHealth() - 1].registerEntityModifier(hearthScaleMod);
+		*/
 		
 		// GAME VERSION
 		final Text version = new Text(GameManager.lengthOfTile * 6 + 18, 0, font, GameManager.GAME_VERSION, new TextOptions(HorizontalAlign.LEFT), this.activity.getVertexBufferObjectManager());

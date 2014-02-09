@@ -6,7 +6,9 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.LayoutGameActivity;
 import se.zarokhan.dodgethecars.scenes.GameScene;
 import se.zarokhan.dodgethecars.scenes.MenuScene;
+import se.zarokhan.dodgethecars.scenes.RetryScene;
 import se.zarokhan.dodgethecars.scenes.SplashScene;
+import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
 
 public class SceneManager {
 	private AllScenes currentScene;
@@ -17,12 +19,13 @@ public class SceneManager {
 	private SplashScene splashSceneC;
 	private MenuScene menuSceneC;
 	private GameScene gameSceneC;
+	private RetryScene retrySceneC;
 	
-	private Scene splashScene, gameScene;
+	private Scene splashScene, gameScene, retryScene;
 	private org.andengine.entity.scene.menu.MenuScene menuScene;
 	
 	public enum AllScenes{
-		SPLASH, MENU, GAME
+		SPLASH, MENU, GAME, RETRY
 	}
 	
 	public SceneManager(LayoutGameActivity act, Engine eng, Camera cam) {
@@ -33,6 +36,7 @@ public class SceneManager {
 		splashSceneC = new SplashScene(this.activity, this.engine, this.camera);
 		menuSceneC = new MenuScene(this.activity, this.engine, this.camera, this);
 		gameSceneC = new GameScene(this.activity, this.engine, this.camera, this);
+		retrySceneC = new RetryScene(activity, camera, this);
 	}
 	
 	// RESOURCES
@@ -46,6 +50,10 @@ public class SceneManager {
 	
 	public void loadGameResources() {
 		gameSceneC.loadResources();
+	}
+	
+	public void loadRetryResources(){
+		retrySceneC.loadResources();
 	}
 	
 	// SCENES
@@ -68,6 +76,12 @@ public class SceneManager {
 		return gameScene;
 	}
 	
+	public Scene createRetryScene(WorldMap map){
+		retryScene = new Scene();
+		retryScene.attachChild(retrySceneC.createScene(map));
+		return retryScene;
+	}
+	
 	// OTHER
 	public AllScenes getCurrentSence() {
 		return currentScene;
@@ -87,7 +101,9 @@ public class SceneManager {
 		case GAME:
 			engine.setScene(gameScene);
 			break;
-
+		case RETRY:
+			engine.setScene(retryScene);
+			break;
 		default:
 			break;
 		}

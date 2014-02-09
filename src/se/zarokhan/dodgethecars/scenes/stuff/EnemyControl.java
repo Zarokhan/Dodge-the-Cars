@@ -62,15 +62,15 @@ public class EnemyControl {
 					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
 				}
 				// SPAWN THIRD ENEMY
-				if(GameManager.getInstance().getScore() >= 40 && GameManager.getInstance().getEnemySpawned() == 2){
+				if(GameManager.getInstance().getScore() >= 200 && GameManager.getInstance().getEnemySpawned() == 2){
 					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
 				}
 				// SPAWN FORUTH ENEMY
-				if(GameManager.getInstance().getScore() >= 80 && GameManager.getInstance().getEnemySpawned() == 3){
+				if(GameManager.getInstance().getScore() >= 1000 && GameManager.getInstance().getEnemySpawned() == 3){
 					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
 				}
 				// SPAWN FIFTH ENEMY
-				if(GameManager.getInstance().getScore() >= 120 && GameManager.getInstance().getEnemySpawned() == 4){
+				if(GameManager.getInstance().getScore() >= 4000 && GameManager.getInstance().getEnemySpawned() == 4){
 					scene.unregisterUpdateHandler(handler);
 					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
 					Log.i("Handler", "Unregistered");

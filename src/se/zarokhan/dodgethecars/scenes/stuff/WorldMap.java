@@ -1,6 +1,9 @@
 package se.zarokhan.dodgethecars.scenes.stuff;
 
+import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.handler.timer.ITimerCallback;
+import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
@@ -14,17 +17,21 @@ import se.zarokhan.dodgethecars.GameManager;
 public class WorldMap {
 
 	private LayoutGameActivity activity;
+	private Engine engine;
 	private Camera camera;
 	
 	private TextureRegion grassTR;
 	private TextureRegion roadTR;
 	
+	private AutoParallaxBackground autoBG;
+	
 	// WORLD
 	private int speed;
 	
-	public WorldMap(LayoutGameActivity activity, Camera camera, int speed) {
+	public WorldMap(LayoutGameActivity activity, Camera camera, Engine engine, int speed) {
 		this.activity = activity;
 		this.camera = camera;
+		this.engine = engine;
 		this.speed = speed;
 	}
 
@@ -36,7 +43,7 @@ public class WorldMap {
 	
 	public void loadMap(Scene scene) {
 		
-		AutoParallaxBackground autoBG = new AutoParallaxBackground(0, 0, 0, speed);
+		autoBG = new AutoParallaxBackground(0, 0, 0, speed);
 		for(int i = 0; i < camera.getWidth()/GameManager.lengthOfTile; i++){
 			if(i == 1){
 				autoBG.attachParallaxEntity(new ParallaxEntity(speed, new Sprite(0, 0, grassTR, this.activity.getVertexBufferObjectManager())));
@@ -51,5 +58,9 @@ public class WorldMap {
 			}
 		}
 		scene.setBackground(autoBG);
+	}
+
+	public void slowDown() {
+		autoBG.setParallaxChangePerSecond(0);
 	}
 }

@@ -84,7 +84,7 @@ public class MenuScene {
 		this.camera = camera;
 		this.sceneManager = sceneManager;
 		
-		map = new WorldMap(activity, camera, 0);
+		map = new WorldMap(activity, camera, engine, 0);
 		r = new Random();
 	}
 

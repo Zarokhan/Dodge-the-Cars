@@ -77,10 +77,8 @@ public class GameScene {
 
 	public void loadResources() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		mapTA = new BuildableBitmapTextureAtlas(
-				this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.REPEATING_NEAREST);
-		entityTA = new BuildableBitmapTextureAtlas(
-				this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		mapTA = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.REPEATING_NEAREST);
+		entityTA = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		
 		map.loadResources(mapTA);
 		
@@ -119,6 +117,7 @@ public class GameScene {
 		//enemyControl();
 		initCollision();
 		initHUD();
+		
 		return scene;
 	}
 	
@@ -171,19 +170,15 @@ public class GameScene {
 		scene.clearChildScene();
 		scene.clearEntityModifiers();
 		scene.clearUpdateHandlers();
-		sceneManager.createMenuScene();
-		sceneManager.setCurrentSence(AllScenes.MENU);
+		sceneManager.loadRetryResoruces();
+		sceneManager.createRetryScene();
+		sceneManager.setCurrentSence(AllScenes.RETRY);
 	}
 
 	private void removeSprite(Sprite sprite) {
 		sprite.detachSelf();
 		sprite.dispose();
 		Log.i("Removed", "REMOVED A SPRITE");
-	}
-	
-	private void addScore() {
-		GameManager.getInstance().addScore(GameManager.POINTS_FOR_STANDARDENEMY);
-		Log.i("Score: ", "" + GameManager.getInstance().getScore());
 	}
 		
 	//
@@ -198,14 +193,6 @@ public class GameScene {
 		// SETUP POS AND ANGLE
 		hud.setRotation(270);
 		hud.setPosition(0, camera.getHeight());
-		
-		// ADD TRANSPARENT BAR ATT THE TOP
-		/*
-		final Rectangle top = new Rectangle(0, 0, screenWidth, GameManager.lengthOfTile, this.activity.getVertexBufferObjectManager());
-		top.setColor(new Color(Color.BLACK));
-		top.setAlpha(50);
-		hud.attachChild(top);
-		*/
 		
 		// ADD THE HEARTHS
 		final Sprite hpText = new Sprite(0, (GameManager.lengthOfTile - hpTR.getHeight())/2, hpTR, this.activity.getVertexBufferObjectManager());
@@ -222,14 +209,16 @@ public class GameScene {
 		version.setColor(Color.WHITE);
 		hud.attachChild(version);
 		
-		// Buttons
-		final Sprite leftButton = new Sprite(0, camera.getWidth()/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
-		final Sprite rightButton = new Sprite(camera.getHeight()-arrowTR.getWidth(), camera.getWidth()/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
-		leftButton.setScale(0.85f);
-		rightButton.setScale(0.85f);
-		rightButton.setRotation(180);
+		// ADD THE ARROWS
+		final Sprite arrowLeft = new Sprite(0, screenHeight/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
+		final Sprite arrowRight = new Sprite(screenWidth-arrowTR.getWidth(), screenHeight/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
+		arrowRight.setRotation(180);
 		
-		final Rectangle left = new Rectangle(0, GameManager.lengthOfTile, screenWidth/2, screenHeight, this.activity.getVertexBufferObjectManager()){
+		hud.attachChild(arrowRight);
+		hud.attachChild(arrowLeft);
+		
+		// ADD CONTROLLABLE BUTTONS
+		final Rectangle leftB = new Rectangle(0, 0, screenWidth / 4, screenHeight, this.activity.getVertexBufferObjectManager()) {
 			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
 				if(touchEvent.isActionDown() && player.playerY < GameManager.lengthOfTile * 6) {
 					player.moveCarNorth();
@@ -237,7 +226,7 @@ public class GameScene {
 				return true;
 			};
 		};
-		final Rectangle right = new Rectangle(screenWidth/2, GameManager.lengthOfTile, screenWidth/2, screenHeight, this.activity.getVertexBufferObjectManager()){
+		final Rectangle rightB = new Rectangle(screenWidth / 2, 0, screenWidth / 2, screenHeight, this.activity.getVertexBufferObjectManager()) {
 			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
 				if(touchEvent.isActionDown() && player.playerY > GameManager.lengthOfTile) {
 					player.moveCarSouth();
@@ -245,17 +234,19 @@ public class GameScene {
 				return true;
 			};
 		};
-		left.setAlpha(255);
-		right.setAlpha(255);
-		hud.registerTouchArea(left);
-	    hud.registerTouchArea(right);
-		hud.attachChild(leftButton);
-		hud.attachChild(rightButton);
-		hud.attachChild(left);
-		hud.attachChild(right);
+		leftB.setAlpha(255);
+		rightB.setAlpha(255);
+		hud.registerTouchArea(leftB);
+		hud.registerTouchArea(rightB);
+		hud.attachChild(leftB);
+		hud.attachChild(rightB);
 		
 		// ATTACH HUD
 		camera.setHUD(hud);
 		Log.i("HUD", "HUD loaded");
+	}
+
+	public Scene getScene() {
+		return scene;
 	}
 }

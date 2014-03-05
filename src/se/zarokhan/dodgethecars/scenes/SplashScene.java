@@ -3,14 +3,23 @@ package se.zarokhan.dodgethecars.scenes;
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
+import org.andengine.entity.modifier.FadeInModifier;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSource;
+import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
+import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder.TextureAtlasBuilderException;
+import org.andengine.opengl.texture.bitmap.BitmapTextureFormat;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.LayoutGameActivity;
 import org.andengine.util.color.Color;
+
+import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
 
 public class SplashScene {
 	
@@ -22,9 +31,8 @@ public class SplashScene {
 	private Scene scene;
 	
 	// TEXTURE
-	private BitmapTextureAtlas splashTA;
-	private TextureRegion zarokhanTR;
-	private TextureRegion gamesTR;
+	private BuildableBitmapTextureAtlas splashTA;
+	private TextureRegion splashTR;
 	
 	public SplashScene(LayoutGameActivity activity, Engine engine, Camera camera) {
 		this.activity = activity;
@@ -34,30 +42,36 @@ public class SplashScene {
 
 	public void loadResources() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/splash/");
-		splashTA = new BitmapTextureAtlas(this.activity.getTextureManager(), 1024, 512);
-		zarokhanTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(splashTA, this.activity, "zarokhan.png", 0, 0);
-		gamesTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(splashTA, this.activity, "games.png", 0, 200);
-		splashTA.load();
+		splashTA = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.REPEATING_NEAREST);
+		splashTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(splashTA, this.activity, "splash.png");
+		
+		
+		try {
+			splashTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 1));
+			splashTA.load();
+		} catch (TextureAtlasBuilderException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public Scene createScene() {
 		scene = new Scene();
-		scene.setBackground(new Background(Color.BLACK));
 		
 		//final HUD hud = new HUD();
-		final Scene hud = new Scene();
+		final Scene splashScene = new Scene();
 		// SETUP POS AND ANGLE
-		hud.setRotation(270);
-		hud.setPosition(0, camera.getHeight());
+		splashScene.setRotation(270);
+		splashScene.setPosition(0, camera.getHeight());
 		
-		final Sprite zarokhan = new Sprite((camera.getHeight() - zarokhanTR.getWidth())/2, (camera.getWidth() - zarokhanTR.getHeight())/2 - 150, zarokhanTR, this.activity.getVertexBufferObjectManager());
-		final Sprite games = new Sprite((camera.getHeight() - gamesTR.getWidth())/2, (camera.getWidth() - gamesTR.getHeight())/2 + 167 - 150, gamesTR, this.activity.getVertexBufferObjectManager());
-		
-		hud.attachChild(zarokhan);
-		hud.attachChild(games);
+		final Sprite splash = new Sprite((camera.getHeight() - splashTR.getWidth())/2, (camera.getWidth() - splashTR.getHeight())/2, splashTR, this.activity.getVertexBufferObjectManager());
+		splashScene.attachChild(splash);
 		
 		//camera.setHUD(hud);
-		scene.attachChild(hud);
+		scene.attachChild(splashScene);
+		return scene;
+	}
+
+	public Scene getScene() {
 		return scene;
 	}
 }

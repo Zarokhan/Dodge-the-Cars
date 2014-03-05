@@ -6,6 +6,7 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.LayoutGameActivity;
 import se.zarokhan.dodgethecars.scenes.GameScene;
 import se.zarokhan.dodgethecars.scenes.MenuScene;
+import se.zarokhan.dodgethecars.scenes.RetryScene;
 import se.zarokhan.dodgethecars.scenes.SplashScene;
 
 public class SceneManager {
@@ -17,12 +18,10 @@ public class SceneManager {
 	private SplashScene splashSceneC;
 	private MenuScene menuSceneC;
 	private GameScene gameSceneC;
-	
-	private Scene splashScene, gameScene;
-	private org.andengine.entity.scene.menu.MenuScene menuScene;
+	private RetryScene retrySceneC;
 	
 	public enum AllScenes{
-		SPLASH, MENU, GAME
+		SPLASH, MENU, GAME, RETRY
 	}
 	
 	public SceneManager(LayoutGameActivity act, Engine eng, Camera cam) {
@@ -33,6 +32,7 @@ public class SceneManager {
 		splashSceneC = new SplashScene(this.activity, this.engine, this.camera);
 		menuSceneC = new MenuScene(this.activity, this.engine, this.camera, this);
 		gameSceneC = new GameScene(this.activity, this.engine, this.camera, this);
+		retrySceneC = new RetryScene(activity, engine, camera, this);
 	}
 	
 	// RESOURCES
@@ -48,24 +48,25 @@ public class SceneManager {
 		gameSceneC.loadResources();
 	}
 	
+	public void loadRetryResoruces(){
+		retrySceneC.loadResources();
+	}
+	
 	// SCENES
 	public Scene createSplashScene() {
-		splashScene = new Scene();
-		splashScene.attachChild(splashSceneC.createScene());
-		return splashScene;
+		return splashSceneC.createScene();
 	}
 	
 	public org.andengine.entity.scene.menu.MenuScene createMenuScene() {
-		
-		menuScene = new org.andengine.entity.scene.menu.MenuScene(camera);
-		menuScene.setChildScene(menuSceneC.createScene());
-		return menuScene;
+		return menuSceneC.createScene();
 	}
 	
 	public Scene createGameScene() {
-		gameScene = new Scene();
-		gameScene.attachChild(gameSceneC.createScene());
-		return gameScene;
+		return gameSceneC.createScene();
+	}
+	
+	public org.andengine.entity.scene.menu.MenuScene createRetryScene() {
+		return retrySceneC.createScene();
 	}
 	
 	// OTHER
@@ -77,17 +78,20 @@ public class SceneManager {
 		this.currentScene = currentScene;
 		switch (currentScene) {
 		case SPLASH:
-			engine.setScene(splashScene);
+			engine.setScene(splashSceneC.getScene());
 			break;
 
 		case MENU:
-			engine.setScene(menuScene);
+			engine.setScene(menuSceneC.getScene());
 			break;
 			
 		case GAME:
-			engine.setScene(gameScene);
+			engine.setScene(gameSceneC.getScene());
 			break;
-
+		case RETRY:
+			engine.setScene(retrySceneC.getScene());
+			break;
+			
 		default:
 			break;
 		}

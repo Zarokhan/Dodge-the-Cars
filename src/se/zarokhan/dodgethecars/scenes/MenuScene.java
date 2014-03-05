@@ -10,6 +10,7 @@ import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.MoveModifier;
 import org.andengine.entity.modifier.RotationModifier;
 import org.andengine.entity.modifier.ScaleModifier;
+import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
 import org.andengine.entity.scene.menu.item.IMenuItem;
 import org.andengine.entity.scene.menu.item.SpriteMenuItem;
@@ -212,6 +213,10 @@ public class MenuScene {
 		};
 		car.registerEntityModifier(moveModifier);
 		menuScene.attachChild(car);
+	}
+
+	public Scene getScene() {
+		return menuScene;
 	}
 
 }

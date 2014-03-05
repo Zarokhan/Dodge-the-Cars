@@ -1,5 +1,143 @@
 package se.zarokhan.dodgethecars.scenes;
 
-public class RetryScene {
+import org.andengine.engine.Engine;
+import org.andengine.engine.camera.Camera;
+import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.scene.Scene;
+import org.andengine.entity.scene.menu.MenuScene;
+import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
+import org.andengine.entity.scene.menu.item.IMenuItem;
+import org.andengine.entity.scene.menu.item.SpriteMenuItem;
+import org.andengine.entity.scene.menu.item.decorator.ScaleMenuItemDecorator;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSource;
+import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
+import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder.TextureAtlasBuilderException;
+import org.andengine.opengl.texture.bitmap.BitmapTextureFormat;
+import org.andengine.opengl.texture.region.TextureRegion;
+import org.andengine.ui.activity.LayoutGameActivity;
+import org.andengine.util.color.Color;
 
+import se.zarokhan.dodgethecars.GameManager;
+import se.zarokhan.dodgethecars.SceneManager;
+import se.zarokhan.dodgethecars.SceneManager.AllScenes;
+import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
+
+public class RetryScene {
+	
+	private final static int HOME_BTN_ID = 0;
+	private final static int RETRY_BTN_ID = 1;
+	
+	private LayoutGameActivity activity;
+	private Engine engine;
+	private Camera camera;
+	
+	private SceneManager sceneManager;
+	private WorldMap map;
+	private MenuScene scene;
+	
+	private BuildableBitmapTextureAtlas retryTA;
+	private TextureRegion carTR, highscoreTR, retryTR, homeTR;
+	
+	float screenWidth, screenHeight;
+	
+	public RetryScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager){
+		this.activity = activity;
+		this.engine = engine;
+		this.camera = camera;
+		this.sceneManager = sceneManager;
+		
+		screenWidth = camera.getHeight();
+		screenHeight = camera.getWidth();
+		
+		map = new WorldMap(this.activity, this.camera, 0);
+	}
+	
+	public void loadResources() {
+		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+		retryTA = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		
+		carTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(retryTA, this.activity, "player.png");
+		highscoreTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(retryTA, this.activity, "menu/highscore.png");
+		retryTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(retryTA, this.activity, "retry.png");
+		homeTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(retryTA, this.activity, "home.png");
+		
+		map.loadResources(retryTA);
+		
+		try {
+			retryTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
+			retryTA.load();
+		} catch (TextureAtlasBuilderException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public MenuScene createScene(){
+		
+		scene = new org.andengine.entity.scene.menu.MenuScene(camera);
+		
+		// SCENE SETUP
+		scene.setRotation(270);
+		scene.setPosition(0, camera.getHeight());
+
+		map.loadMap(scene);
+		initCrashedCar();
+		
+		final Sprite highscores = new Sprite((screenWidth - highscoreTR.getWidth())/2, screenHeight/8, highscoreTR, this.activity.getVertexBufferObjectManager());
+		scene.attachChild(highscores);
+		
+		highscoreList();
+		
+		navigation();
+		
+		return scene;
+	}
+
+	private void navigation() {
+		// MENU ITEMS
+		final IMenuItem buttonHome = new ScaleMenuItemDecorator(new SpriteMenuItem(HOME_BTN_ID, homeTR, this.activity.getVertexBufferObjectManager()), 1, 1);
+		final IMenuItem buttonRetry = new ScaleMenuItemDecorator(new SpriteMenuItem(RETRY_BTN_ID, retryTR, this.activity.getVertexBufferObjectManager()), 1, 1);
+		buttonHome.setPosition(screenWidth/2 - homeTR.getWidth()/2 - retryTR.getWidth()/2 - 64, screenHeight - homeTR.getHeight()*2);
+		buttonRetry.setPosition(screenWidth/2 - retryTR.getWidth()/2 + homeTR.getWidth()/2 + 64, screenHeight - retryTR.getHeight()*2);
+		
+		scene.addMenuItem(buttonHome);
+		scene.addMenuItem(buttonRetry);
+		
+		scene.setOnMenuItemClickListener(new IOnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClicked(org.andengine.entity.scene.menu.MenuScene pMenuScene, IMenuItem pMenuItem, float pMenuItemLocalX, float pMenuItemLocalY) {
+				
+				switch(pMenuItem.getID()){
+				case HOME_BTN_ID:
+					sceneManager.createMenuScene();
+					sceneManager.setCurrentSence(AllScenes.MENU);
+					break;
+				case RETRY_BTN_ID:
+					sceneManager.createGameScene();
+					sceneManager.setCurrentSence(AllScenes.GAME);
+					break;
+				}
+				
+				return false;
+			}
+		});
+	}
+
+	private void highscoreList() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void initCrashedCar() {
+		
+	}
+
+	public Scene getScene() {
+		return scene;
+	}
 }

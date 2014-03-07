@@ -4,7 +4,8 @@ public class GameManager {
 
 	private static GameManager INSTANCE;
 	
-	public static final String GAME_VERSION = "BETA";
+	public static final String GAME_VERSION = "ALPHA";
+	public static final float GAME_VERSION_LENGHT = 1f;
 	public static final int lengthOfTile = 135;
 	
 	public static final int INITIAL_PHASE = 0;

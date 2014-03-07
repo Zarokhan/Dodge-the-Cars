@@ -10,6 +10,7 @@ import se.zarokhan.dodgethecars.scenes.RetryScene;
 import se.zarokhan.dodgethecars.scenes.SplashScene;
 
 public class SceneManager {
+	
 	private AllScenes currentScene;
 	private LayoutGameActivity activity;
 	private Engine engine;
@@ -20,19 +21,22 @@ public class SceneManager {
 	private GameScene gameSceneC;
 	private RetryScene retrySceneC;
 	
+	private mSoundManager sounds;
+	
 	public enum AllScenes{
 		SPLASH, MENU, GAME, RETRY
 	}
 	
-	public SceneManager(LayoutGameActivity act, Engine eng, Camera cam) {
+	public SceneManager(LayoutGameActivity act, Engine eng, Camera cam, mSoundManager sounds) {
 		this.activity = act;
 		this.engine = eng;
 		this.camera = cam;
+		this.sounds = sounds;
 		
-		splashSceneC = new SplashScene(this.activity, this.engine, this.camera);
-		menuSceneC = new MenuScene(this.activity, this.engine, this.camera, this);
-		gameSceneC = new GameScene(this.activity, this.engine, this.camera, this);
-		retrySceneC = new RetryScene(activity, engine, camera, this);
+		splashSceneC = new SplashScene(this.activity, this.engine, this.camera, this, sounds);
+		menuSceneC = new MenuScene(this.activity, this.engine, this.camera, this, sounds);
+		gameSceneC = new GameScene(this.activity, this.engine, this.camera, this, sounds);
+		retrySceneC = new RetryScene(activity, engine, camera, this, sounds);
 	}
 	
 	// RESOURCES

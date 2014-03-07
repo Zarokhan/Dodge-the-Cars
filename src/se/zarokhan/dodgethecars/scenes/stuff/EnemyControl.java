@@ -21,7 +21,7 @@ public class EnemyControl {
 	private LayoutGameActivity activity;
 	private Camera camera;
 	
-	private ITextureRegion playerTR;
+	private ITextureRegion greenCarTR, grayCarTR, purpleCarTR;
 	// ENEMY
 	public Sprite enemy[];
 	private float duration[] = new float[GameManager.INITIAL_ENEMIES];
@@ -38,7 +38,9 @@ public class EnemyControl {
 	}
 	
 	public void loadResources(BuildableBitmapTextureAtlas entityTA){
-		playerTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "player.png");
+		greenCarTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "enemy2.png");
+		grayCarTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "enemy1.png");
+		purpleCarTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "enemy3.png");
 	}
 	
 	public void init(final Scene scene) {
@@ -62,15 +64,15 @@ public class EnemyControl {
 					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
 				}
 				// SPAWN THIRD ENEMY
-				if(GameManager.getInstance().getScore() >= 40 && GameManager.getInstance().getEnemySpawned() == 2){
+				if(GameManager.getInstance().getScore() >= 60 && GameManager.getInstance().getEnemySpawned() == 2){
 					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
 				}
 				// SPAWN FORUTH ENEMY
-				if(GameManager.getInstance().getScore() >= 80 && GameManager.getInstance().getEnemySpawned() == 3){
+				if(GameManager.getInstance().getScore() >= 180 && GameManager.getInstance().getEnemySpawned() == 3){
 					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
 				}
 				// SPAWN FIFTH ENEMY
-				if(GameManager.getInstance().getScore() >= 120 && GameManager.getInstance().getEnemySpawned() == 4){
+				if(GameManager.getInstance().getScore() >= 720 && GameManager.getInstance().getEnemySpawned() == 4){
 					scene.unregisterUpdateHandler(handler);
 					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
 					Log.i("Handler", "Unregistered");
@@ -85,7 +87,7 @@ public class EnemyControl {
 	private void spawnEnemy(final int enemyID, boolean newEnemy, Scene scene){
 		duration[enemyID] = r.nextFloat() * (maxDuration - minDuration) + minDuration;
 		lane[enemyID] = newLane(enemyID);
-		enemy[enemyID] = new Sprite(-300, 0, playerTR, this.activity.getVertexBufferObjectManager());
+		carType(enemyID);
 		MoveModifier moveModifier = new MoveModifier(duration[enemyID], -GameManager.lengthOfTile * 2, camera.getWidth() + GameManager.lengthOfTile*2, lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile){
 			@Override
 			protected void onModifierFinished(IEntity pItem) {
@@ -101,7 +103,17 @@ public class EnemyControl {
 		if(newEnemy)GameManager.getInstance().enemySpawned();
 		Log.i("SPAWNED: ", "ENEMY");
 	}
-	
+
+	private void carType(int enemyID) {
+		if(enemyID == 0 || enemyID == 1){
+			enemy[enemyID] = new Sprite(-300, 0, grayCarTR, this.activity.getVertexBufferObjectManager());
+		}else if(enemyID == 2 || enemyID == 3){
+			enemy[enemyID] = new Sprite(-300, 0, greenCarTR, this.activity.getVertexBufferObjectManager());
+		}else if(enemyID == 4){
+			enemy[enemyID] = new Sprite(-300, 0, purpleCarTR, this.activity.getVertexBufferObjectManager());
+		}
+	}
+
 	public int newLane(int enemyID){
 		int lane = r.nextInt(6)+1;
 		// CHECK IF FIRST CAR

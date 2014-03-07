@@ -1,7 +1,12 @@
 package se.zarokhan.dodgethecars.scenes;
 
+import java.io.IOException;
 import java.util.Random;
 
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.timer.ITimerCallback;
@@ -34,10 +39,13 @@ import org.andengine.util.HorizontalAlign;
 import org.andengine.util.color.Color;
 
 import android.graphics.Typeface;
+import android.view.KeyEvent;
+import android.widget.Toast;
 
 import se.zarokhan.dodgethecars.GameManager;
 import se.zarokhan.dodgethecars.SceneManager;
 import se.zarokhan.dodgethecars.SceneManager.AllScenes;
+import se.zarokhan.dodgethecars.mSoundManager;
 import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
 
 public class MenuScene {
@@ -56,6 +64,7 @@ public class MenuScene {
 	
 	private SceneManager sceneManager;
 	private WorldMap map;
+	private mSoundManager sounds;
 	
 	// SCENE
 	private org.andengine.entity.scene.menu.MenuScene menuScene;
@@ -79,7 +88,7 @@ public class MenuScene {
 	private int rotDuration = 5;
 	private boolean scaBan, rotBan;
 	
-	public MenuScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager) {
+	public MenuScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager, mSoundManager sounds2) {
 		this.activity = activity;
 		this.engine = engine;
 		this.camera = camera;
@@ -87,10 +96,12 @@ public class MenuScene {
 		
 		map = new WorldMap(activity, camera, 0);
 		r = new Random();
+		sounds = new mSoundManager(activity);
 	}
 
 	public void loadResources() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/menu/");
+		
 		menuTA = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		
 		dodgecarsTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTA, this.activity, "dodgethecars.png");
@@ -114,6 +125,8 @@ public class MenuScene {
 		} catch (TextureAtlasBuilderException e) {
 			e.printStackTrace();
 		}
+		
+		sounds.loadSoundResources();
 	}
 
 	public org.andengine.entity.scene.menu.MenuScene createScene() {
@@ -160,7 +173,7 @@ public class MenuScene {
 		});
 		
 		// GAME VERSION
-		final Text GAME_STAGE = new Text(GameManager.lengthOfTile * 6 + 18, 0, font, GameManager.GAME_VERSION, new TextOptions(HorizontalAlign.LEFT), this.activity.getVertexBufferObjectManager());
+		final Text GAME_STAGE = new Text(GameManager.lengthOfTile * 6 - GameManager.lengthOfTile/2, 0, font, GameManager.GAME_VERSION, new TextOptions(HorizontalAlign.LEFT), this.activity.getVertexBufferObjectManager());
 		
 		// MENU ITEMS
 		final IMenuItem buttonPlay = new ScaleMenuItemDecorator(new SpriteMenuItem(PLAY_BTN_ID, playTR, this.activity.getVertexBufferObjectManager()), unSelected, onSelected);
@@ -182,13 +195,15 @@ public class MenuScene {
 				
 				switch(pMenuItem.getID()){
 				case PLAY_BTN_ID:
-					sceneManager.loadGameResources();
+					sounds.playCarStart();
 					sceneManager.createGameScene();
 					sceneManager.setCurrentSence(AllScenes.GAME);
 					break;
 				case HIGHSCORE_BTN_ID:
+					sounds.playBlop();
 					break;
 				case CREDITS_BTN_ID:
+					sounds.playBlop();
 					break;
 				}
 				
@@ -218,5 +233,4 @@ public class MenuScene {
 	public Scene getScene() {
 		return menuScene;
 	}
-
 }

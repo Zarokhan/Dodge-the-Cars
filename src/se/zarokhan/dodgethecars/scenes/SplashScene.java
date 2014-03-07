@@ -2,10 +2,7 @@ package se.zarokhan.dodgethecars.scenes;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
-import org.andengine.engine.camera.hud.HUD;
-import org.andengine.entity.modifier.FadeInModifier;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
@@ -17,15 +14,15 @@ import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder
 import org.andengine.opengl.texture.bitmap.BitmapTextureFormat;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.LayoutGameActivity;
-import org.andengine.util.color.Color;
-
-import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
+import se.zarokhan.dodgethecars.SceneManager;
+import se.zarokhan.dodgethecars.mSoundManager;
 
 public class SplashScene {
 	
 	private LayoutGameActivity activity;
 	private Engine engine;
 	private Camera camera;
+	private SceneManager sceneManager;
 	
 	// SCENE
 	private Scene scene;
@@ -34,10 +31,11 @@ public class SplashScene {
 	private BuildableBitmapTextureAtlas splashTA;
 	private TextureRegion splashTR;
 	
-	public SplashScene(LayoutGameActivity activity, Engine engine, Camera camera) {
+	public SplashScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager, mSoundManager sounds) {
 		this.activity = activity;
 		this.engine = engine;
 		this.camera = camera;
+		this.sceneManager = sceneManager;
 	}
 
 	public void loadResources() {
@@ -52,6 +50,10 @@ public class SplashScene {
 		} catch (TextureAtlasBuilderException e) {
 			e.printStackTrace();
 		}
+		
+		sceneManager.loadMenuResources();
+		sceneManager.loadGameResources();
+		sceneManager.loadRetryResoruces();
 	}
 	
 	public Scene createScene() {

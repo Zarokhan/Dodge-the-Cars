@@ -2,7 +2,6 @@ package se.zarokhan.dodgethecars.scenes;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
-import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.menu.MenuScene;
 import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
@@ -10,7 +9,10 @@ import org.andengine.entity.scene.menu.item.IMenuItem;
 import org.andengine.entity.scene.menu.item.SpriteMenuItem;
 import org.andengine.entity.scene.menu.item.decorator.ScaleMenuItemDecorator;
 import org.andengine.entity.sprite.Sprite;
-import org.andengine.input.touch.TouchEvent;
+import org.andengine.entity.text.Text;
+import org.andengine.entity.text.TextOptions;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -21,11 +23,13 @@ import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder
 import org.andengine.opengl.texture.bitmap.BitmapTextureFormat;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.LayoutGameActivity;
-import org.andengine.util.color.Color;
+import org.andengine.util.HorizontalAlign;
 
+import android.graphics.Typeface;
 import se.zarokhan.dodgethecars.GameManager;
 import se.zarokhan.dodgethecars.SceneManager;
 import se.zarokhan.dodgethecars.SceneManager.AllScenes;
+import se.zarokhan.dodgethecars.mSoundManager;
 import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
 
 public class RetryScene {
@@ -40,17 +44,21 @@ public class RetryScene {
 	private SceneManager sceneManager;
 	private WorldMap map;
 	private MenuScene scene;
+	private mSoundManager sounds;
 	
 	private BuildableBitmapTextureAtlas retryTA;
 	private TextureRegion carTR, highscoreTR, retryTR, homeTR;
 	
+	private Font font;
+	
 	float screenWidth, screenHeight;
 	
-	public RetryScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager){
+	public RetryScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager, mSoundManager sounds){
 		this.activity = activity;
 		this.engine = engine;
 		this.camera = camera;
 		this.sceneManager = sceneManager;
+		this.sounds = sounds;
 		
 		screenWidth = camera.getHeight();
 		screenHeight = camera.getWidth();
@@ -69,12 +77,17 @@ public class RetryScene {
 		
 		map.loadResources(retryTA);
 		
+		font = FontFactory.create(this.activity.getFontManager(), this.activity.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), GameManager.lengthOfTile);
+		font.load();
+		
 		try {
 			retryTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
 			retryTA.load();
 		} catch (TextureAtlasBuilderException e) {
 			e.printStackTrace();
 		}
+		
+		sounds.loadSoundResources();
 	}
 	
 	public MenuScene createScene(){
@@ -114,10 +127,12 @@ public class RetryScene {
 				
 				switch(pMenuItem.getID()){
 				case HOME_BTN_ID:
+					sounds.playBlop();
 					sceneManager.createMenuScene();
 					sceneManager.setCurrentSence(AllScenes.MENU);
 					break;
 				case RETRY_BTN_ID:
+					sounds.playCarStart();
 					sceneManager.createGameScene();
 					sceneManager.setCurrentSence(AllScenes.GAME);
 					break;
@@ -129,12 +144,13 @@ public class RetryScene {
 	}
 
 	private void highscoreList() {
-		// TODO Auto-generated method stub
 		
 	}
 
 	private void initCrashedCar() {
-		
+		final Text score = new Text(GameManager.lengthOfTile, GameManager.lengthOfTile * 3, font, "" + GameManager.getInstance().getScore(), new TextOptions(HorizontalAlign.LEFT), this.activity.getVertexBufferObjectManager());
+		scene.attachChild(score);
+		GameManager.getInstance().resetGame();
 	}
 
 	public Scene getScene() {

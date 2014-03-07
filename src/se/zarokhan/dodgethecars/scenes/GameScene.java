@@ -32,6 +32,7 @@ import android.util.Log;
 import se.zarokhan.dodgethecars.GameManager;
 import se.zarokhan.dodgethecars.SceneManager;
 import se.zarokhan.dodgethecars.SceneManager.AllScenes;
+import se.zarokhan.dodgethecars.mSoundManager;
 import se.zarokhan.dodgethecars.scenes.stuff.EnemyControl;
 import se.zarokhan.dodgethecars.scenes.stuff.Player;
 import se.zarokhan.dodgethecars.scenes.stuff.WorldMap;
@@ -47,6 +48,7 @@ public class GameScene {
 	private SceneManager sceneManager;
 	private EnemyControl enemyControl;
 	private Random r;
+	private mSoundManager sounds;
 	
 	private Scene scene;
 	
@@ -62,11 +64,12 @@ public class GameScene {
 	HUD hud;
 	private Sprite hearth[];
 	
-	public GameScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager) {
+	public GameScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager, mSoundManager sounds) {
 		this.activity = activity;
 		this.engine = engine;
 		this.camera = camera;
 		this.sceneManager = sceneManager;
+		this.sounds = sounds;
 		
 		map = new WorldMap(activity, camera, 22);
 		r = new Random();
@@ -105,8 +108,10 @@ public class GameScene {
 		} catch (TextureAtlasBuilderException e) {
 			e.printStackTrace();
 		}
+		
+		sounds.loadSoundResources();
 	}
-
+	
 	public Scene createScene() {
 		scene = null;
 		scene = new Scene();
@@ -156,21 +161,25 @@ public class GameScene {
 	
 	private void checkHealth(int enemyID){
 		if(GameManager.getInstance().getHealth() == 0){
+			sounds.playCrash();
 			afterDeath();
 		}else{
+			sounds.playSlide();
 			removeSprite(hearth[GameManager.getInstance().getHealth() - 1]);
 			GameManager.getInstance().removeHealth();
 			enemyControl.resetEnemy(enemyID, scene);
 		}
 	}
 	
-	private void afterDeath() {
-		GameManager.getInstance().resetGame();
+	public void clearScene() {
 		camera.setHUD(null);
 		scene.clearChildScene();
 		scene.clearEntityModifiers();
 		scene.clearUpdateHandlers();
-		sceneManager.loadRetryResoruces();
+	}
+	
+	private void afterDeath() {
+		clearScene();
 		sceneManager.createRetryScene();
 		sceneManager.setCurrentSence(AllScenes.RETRY);
 	}
@@ -205,7 +214,7 @@ public class GameScene {
 		}
 		
 		// GAME VERSION
-		final Text version = new Text(GameManager.lengthOfTile * 6 + 18, 0, font, GameManager.GAME_VERSION, new TextOptions(HorizontalAlign.LEFT), this.activity.getVertexBufferObjectManager());
+		final Text version = new Text(GameManager.lengthOfTile * 6 - GameManager.lengthOfTile/2, 0, font, GameManager.GAME_VERSION, new TextOptions(HorizontalAlign.LEFT), this.activity.getVertexBufferObjectManager());
 		version.setColor(Color.WHITE);
 		hud.attachChild(version);
 		
@@ -213,6 +222,8 @@ public class GameScene {
 		final Sprite arrowLeft = new Sprite(0, screenHeight/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
 		final Sprite arrowRight = new Sprite(screenWidth-arrowTR.getWidth(), screenHeight/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
 		arrowRight.setRotation(180);
+		arrowLeft.setScale(0.7f);
+		arrowRight.setScale(0.7f);
 		
 		hud.attachChild(arrowRight);
 		hud.attachChild(arrowLeft);
@@ -221,6 +232,7 @@ public class GameScene {
 		final Rectangle leftB = new Rectangle(0, 0, screenWidth / 4, screenHeight, this.activity.getVertexBufferObjectManager()) {
 			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
 				if(touchEvent.isActionDown() && player.playerY < GameManager.lengthOfTile * 6) {
+					sounds.playBlop();
 					player.moveCarNorth();
 				}
 				return true;
@@ -229,6 +241,7 @@ public class GameScene {
 		final Rectangle rightB = new Rectangle(screenWidth / 2, 0, screenWidth / 2, screenHeight, this.activity.getVertexBufferObjectManager()) {
 			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
 				if(touchEvent.isActionDown() && player.playerY > GameManager.lengthOfTile) {
+					sounds.playBlop();
 					player.moveCarSouth();
 				}
 				return true;
@@ -245,7 +258,7 @@ public class GameScene {
 		camera.setHUD(hud);
 		Log.i("HUD", "HUD loaded");
 	}
-
+	
 	public Scene getScene() {
 		return scene;
 	}

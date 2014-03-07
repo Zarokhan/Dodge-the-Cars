@@ -9,6 +9,8 @@ import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.LayoutGameActivity;
 
+import android.view.KeyEvent;
+
 import se.zarokhan.dodgethecars.SceneManager.AllScenes;
 
 public class MainGameActivity extends LayoutGameActivity{
@@ -19,12 +21,16 @@ public class MainGameActivity extends LayoutGameActivity{
 	SceneManager sceneManager;
 	Camera camera;
 	
+	private mSoundManager sounds;
+	
 	private int splashSeconds = 1;
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 		EngineOptions options = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
+		options.getAudioOptions().setNeedsMusic(true);
+		options.getAudioOptions().setNeedsSound(true);
 		return options;
 	}
 
@@ -33,7 +39,9 @@ public class MainGameActivity extends LayoutGameActivity{
 			OnCreateResourcesCallback pOnCreateResourcesCallback)
 			throws Exception {
 		
-		sceneManager = new SceneManager(this, mEngine, camera);
+		sounds = new mSoundManager(this);
+		sceneManager = new SceneManager(this, mEngine, camera, sounds);
+		sounds.loadSoundResources();
 		sceneManager.loadSplashResources();
 		
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
@@ -50,12 +58,45 @@ public class MainGameActivity extends LayoutGameActivity{
 			@Override
 			public void onTimePassed(TimerHandler pTimerHandler) {
 				mEngine.unregisterUpdateHandler(pTimerHandler);
-					sceneManager.loadMenuResources();
 					sceneManager.createMenuScene();
 					sceneManager.setCurrentSence(AllScenes.MENU);
 			}
 		}));
 		pOnPopulateSceneCallback.onPopulateSceneFinished();
+	}
+	
+	@Override
+	public synchronized void onResumeGame() {
+		if (!sounds.isMusicNull() && !sounds.isMusicPlaying()){
+			sounds.playMusic();
+		}
+		
+		super.onResumeGame();
+	}
+
+	@Override
+	public synchronized void onPauseGame() {
+		if (!sounds.isMusicNull() && sounds.isMusicPlaying()){
+			sounds.pause();
+		}
+		
+		super.onPauseGame();
+	}
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) 
+	{  
+	    if (keyCode == KeyEvent.KEYCODE_BACK){
+	    	if(sceneManager.getCurrentSence() != SceneManager.AllScenes.MENU){
+	    		camera.setHUD(null);
+	    		GameManager.getInstance().resetGame();
+	    		sceneManager.createMenuScene();
+	    		sceneManager.setCurrentSence(AllScenes.MENU);
+	    	}else{
+	    		finish();
+	    	}
+	    }
+	    return false; 
 	}
 	
 	@Override

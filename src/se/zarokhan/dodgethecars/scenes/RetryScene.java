@@ -1,6 +1,5 @@
 package se.zarokhan.dodgethecars.scenes;
 
-import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.menu.MenuScene;
@@ -88,7 +87,7 @@ public class RetryScene {
 		sounds.loadResources();
 	}
 	
-	public MenuScene createScene(boolean fromMenu){
+	public MenuScene createScene(){
 		
 		scene = new org.andengine.entity.scene.menu.MenuScene(camera);
 

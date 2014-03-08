@@ -186,13 +186,13 @@ public class MenuScene {
 					break;
 				case HIGHSCORE_BTN_ID:
 					sounds.playBlop();
-					sceneManager.createRetryScene();
-					sceneManager.setCurrentSence(AllScenes.RETRY);
+					sceneManager.createHighScoreScene();
+					sceneManager.setCurrentSence(AllScenes.HIGHSCORE);
 					break;
 				case CREDITS_BTN_ID:
 					sounds.playBlop();
-					//sceneManager.createCreditScene();
-					//sceneManager.setCurrentSence(AllScenes.CREDITS);
+					sceneManager.createCreditScene();
+					sceneManager.setCurrentSence(AllScenes.CREDITS);
 					break;
 				}
 				

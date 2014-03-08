@@ -51,10 +51,12 @@ public class SplashScene {
 			e.printStackTrace();
 		}
 		
+		// LOAD ALL SCENE RESOURCES HERE
 		sceneManager.loadMenuResources();
 		sceneManager.loadGameResources();
 		sceneManager.loadRetryResoruces();
-		//sceneManager.loadCreditsResources();
+		sceneManager.loadCreditsResources();
+		sceneManager.loadHighscoreResources();
 	}
 	
 	public Scene createScene() {

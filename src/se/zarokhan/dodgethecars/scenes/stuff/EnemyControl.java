@@ -26,8 +26,8 @@ public class EnemyControl {
 	public Sprite enemy[];
 	private float duration[] = new float[GameManager.INITIAL_ENEMIES];
 	private int lane[] = new int[GameManager.INITIAL_ENEMIES];
-	private float minDuration = 1.25f; // minimum duration
-	private float maxDuration = 3.0f; // maximum duration
+	private float minDuration[] = new float[GameManager.INITIAL_ENEMIES]; // 1.25f; // minimum duration
+	private float maxDuration[] = new float[GameManager.INITIAL_ENEMIES]; // 3.0f; // maximum duration
 	private IUpdateHandler handler;
 	private Random r;
 	
@@ -57,24 +57,24 @@ public class EnemyControl {
 			public void onUpdate(float pSecondsElapsed) {
 				// SPAWN FIRST ENEMY
 				if(GameManager.getInstance().getScore() >= 0 && GameManager.getInstance().getEnemySpawned() == 0){
-					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
+					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene, 2f, 3f);
 				}
 				// SPAWN SECOND ENEMY
 				if(GameManager.getInstance().getScore() >= 30 && GameManager.getInstance().getEnemySpawned() == 1){
-					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
+					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene, 2f, 3f);
 				}
 				// SPAWN THIRD ENEMY
-				if(GameManager.getInstance().getScore() >= 60 && GameManager.getInstance().getEnemySpawned() == 2){
-					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
+				if(GameManager.getInstance().getScore() >= 90 && GameManager.getInstance().getEnemySpawned() == 2){
+					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene, 1.5f, 2f);
 				}
 				// SPAWN FORUTH ENEMY
-				if(GameManager.getInstance().getScore() >= 180 && GameManager.getInstance().getEnemySpawned() == 3){
-					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
+				if(GameManager.getInstance().getScore() >= 240 && GameManager.getInstance().getEnemySpawned() == 3){
+					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene, 1.5f, 2f);
 				}
 				// SPAWN FIFTH ENEMY
-				if(GameManager.getInstance().getScore() >= 720 && GameManager.getInstance().getEnemySpawned() == 4){
+				if(GameManager.getInstance().getScore() >= 1000 && GameManager.getInstance().getEnemySpawned() == 4){
 					scene.unregisterUpdateHandler(handler);
-					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene);
+					spawnEnemy(GameManager.getInstance().getEnemySpawned(), true, scene, 0.8f, 1.5f);
 					Log.i("Handler", "Unregistered");
 				}
 			}
@@ -84,15 +84,19 @@ public class EnemyControl {
 		Log.i("EnemyControl", "Loaded");
 	}
 	
-	private void spawnEnemy(final int enemyID, boolean newEnemy, Scene scene){
-		duration[enemyID] = r.nextFloat() * (maxDuration - minDuration) + minDuration;
+	private void spawnEnemy(final int enemyID, boolean newEnemy, Scene scene, float minDur, float maxDur){
+		if(newEnemy){
+			minDuration[enemyID] = minDur;
+			maxDuration[enemyID] = maxDur;
+		}
+		duration[enemyID] = r.nextFloat() * (maxDuration[enemyID] - minDuration[enemyID]) + minDuration[enemyID];
 		lane[enemyID] = newLane(enemyID);
 		carType(enemyID);
 		MoveModifier moveModifier = new MoveModifier(duration[enemyID], lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile, -GameManager.lengthOfTile * 2, camera.getHeight() + GameManager.lengthOfTile*2){
 			@Override
 			protected void onModifierFinished(IEntity pItem) {
 				super.onModifierFinished(pItem);
-				duration[enemyID] = r.nextFloat() * (maxDuration - minDuration) + minDuration;
+				duration[enemyID] = r.nextFloat() * (maxDuration[enemyID] - minDuration[enemyID]) + minDuration[enemyID];
 				lane[enemyID] = newLane(enemyID);
 				addScore();
 				this.reset(duration[enemyID], lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile, -GameManager.lengthOfTile * 2, camera.getHeight() + GameManager.lengthOfTile*2);
@@ -134,7 +138,7 @@ public class EnemyControl {
 	public void resetEnemy(int enemyID, Scene scene) {
 		Log.i("Reset", "Enemy");
 		removeSprite(enemy[enemyID]);
-		spawnEnemy(enemyID, false, scene);
+		spawnEnemy(enemyID, false, scene, 0, 0);
 	}
 
 	private void removeSprite(Sprite sprite) {

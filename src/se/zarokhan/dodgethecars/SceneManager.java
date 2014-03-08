@@ -7,6 +7,7 @@ import org.andengine.ui.activity.LayoutGameActivity;
 
 import se.zarokhan.dodgethecars.scenes.CreditsScene;
 import se.zarokhan.dodgethecars.scenes.GameScene;
+import se.zarokhan.dodgethecars.scenes.HighScoreScene;
 import se.zarokhan.dodgethecars.scenes.MenuScene;
 import se.zarokhan.dodgethecars.scenes.RetryScene;
 import se.zarokhan.dodgethecars.scenes.SplashScene;
@@ -23,6 +24,7 @@ public class SceneManager {
 	private GameScene gameSceneC;
 	private RetryScene retrySceneC;
 	private CreditsScene creditScene;
+	private HighScoreScene highscoreScene;
 	
 	public enum AllScenes{
 		SPLASH, MENU, GAME, RETRY, HIGHSCORE, CREDITS
@@ -38,6 +40,7 @@ public class SceneManager {
 		gameSceneC = new GameScene(this.activity, this.engine, this.camera, this, sounds);
 		retrySceneC = new RetryScene(activity, camera, this, sounds);
 		creditScene = new CreditsScene(activity, camera, this, sounds);
+		highscoreScene = new HighScoreScene(activity, camera, this, sounds);
 	}
 	
 	// RESOURCES
@@ -61,6 +64,10 @@ public class SceneManager {
 		creditScene.loadResources();
 	}
 	
+	public void loadHighscoreResources(){
+		highscoreScene.loadResources();
+	}
+	
 	// SCENES
 	public Scene createSplashScene() {
 		return splashSceneC.createScene();
@@ -75,11 +82,15 @@ public class SceneManager {
 	}
 	
 	public org.andengine.entity.scene.menu.MenuScene createRetryScene() {
-		return retrySceneC.createScene(false);
+		return retrySceneC.createScene();
 	}
 	
 	public Scene createCreditScene(){
 		return creditScene.createScene();
+	}
+	
+	public org.andengine.entity.scene.menu.MenuScene createHighScoreScene(){
+		return highscoreScene.createScene();
 	}
 	
 	// OTHER
@@ -105,9 +116,11 @@ public class SceneManager {
 			engine.setScene(retrySceneC.getScene());
 			break;
 		case HIGHSCORE:
-			engine.setScene(retrySceneC.createScene(true));
+			engine.setScene(highscoreScene.getScene());
+			break;
 		case CREDITS:
 			engine.setScene(creditScene.getScene());
+			break;
 			
 		default:
 			break;

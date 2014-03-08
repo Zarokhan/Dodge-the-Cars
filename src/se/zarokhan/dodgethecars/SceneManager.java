@@ -4,6 +4,8 @@ import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.LayoutGameActivity;
+
+import se.zarokhan.dodgethecars.scenes.CreditsScene;
 import se.zarokhan.dodgethecars.scenes.GameScene;
 import se.zarokhan.dodgethecars.scenes.MenuScene;
 import se.zarokhan.dodgethecars.scenes.RetryScene;
@@ -20,23 +22,22 @@ public class SceneManager {
 	private MenuScene menuSceneC;
 	private GameScene gameSceneC;
 	private RetryScene retrySceneC;
-	
-	private mSoundManager sounds;
+	private CreditsScene creditScene;
 	
 	public enum AllScenes{
-		SPLASH, MENU, GAME, RETRY
+		SPLASH, MENU, GAME, RETRY, HIGHSCORE, CREDITS
 	}
 	
 	public SceneManager(LayoutGameActivity act, Engine eng, Camera cam, mSoundManager sounds) {
 		this.activity = act;
 		this.engine = eng;
 		this.camera = cam;
-		this.sounds = sounds;
 		
-		splashSceneC = new SplashScene(this.activity, this.engine, this.camera, this, sounds);
-		menuSceneC = new MenuScene(this.activity, this.engine, this.camera, this, sounds);
+		splashSceneC = new SplashScene(this.activity, this.camera, this, sounds);
+		menuSceneC = new MenuScene(this.activity, this.camera, this, sounds);
 		gameSceneC = new GameScene(this.activity, this.engine, this.camera, this, sounds);
-		retrySceneC = new RetryScene(activity, engine, camera, this, sounds);
+		retrySceneC = new RetryScene(activity, camera, this, sounds);
+		creditScene = new CreditsScene(activity, camera, this, sounds);
 	}
 	
 	// RESOURCES
@@ -56,6 +57,10 @@ public class SceneManager {
 		retrySceneC.loadResources();
 	}
 	
+	public void loadCreditsResources(){
+		creditScene.loadResources();
+	}
+	
 	// SCENES
 	public Scene createSplashScene() {
 		return splashSceneC.createScene();
@@ -70,7 +75,11 @@ public class SceneManager {
 	}
 	
 	public org.andengine.entity.scene.menu.MenuScene createRetryScene() {
-		return retrySceneC.createScene();
+		return retrySceneC.createScene(false);
+	}
+	
+	public Scene createCreditScene(){
+		return creditScene.createScene();
 	}
 	
 	// OTHER
@@ -95,6 +104,10 @@ public class SceneManager {
 		case RETRY:
 			engine.setScene(retrySceneC.getScene());
 			break;
+		case HIGHSCORE:
+			engine.setScene(retrySceneC.createScene(true));
+		case CREDITS:
+			engine.setScene(creditScene.getScene());
 			
 		default:
 			break;

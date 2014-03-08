@@ -109,7 +109,7 @@ public class GameScene {
 			e.printStackTrace();
 		}
 		
-		sounds.loadSoundResources();
+		sounds.loadResources();
 	}
 	
 	public Scene createScene() {
@@ -195,13 +195,7 @@ public class GameScene {
 	//
 	
 	private void initHUD(){
-		int screenWidth = (int) camera.getHeight();
-		int screenHeight = (int) camera.getWidth();
-		
 		hud = new HUD();
-		// SETUP POS AND ANGLE
-		hud.setRotation(270);
-		hud.setPosition(0, camera.getHeight());
 		
 		// ADD THE HEARTHS
 		final Sprite hpText = new Sprite(0, (GameManager.lengthOfTile - hpTR.getHeight())/2, hpTR, this.activity.getVertexBufferObjectManager());
@@ -219,8 +213,8 @@ public class GameScene {
 		hud.attachChild(version);
 		
 		// ADD THE ARROWS
-		final Sprite arrowLeft = new Sprite(0, screenHeight/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
-		final Sprite arrowRight = new Sprite(screenWidth-arrowTR.getWidth(), screenHeight/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
+		final Sprite arrowLeft = new Sprite(0, camera.getHeight()/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
+		final Sprite arrowRight = new Sprite(camera.getWidth()-arrowTR.getWidth(), camera.getHeight()/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());
 		arrowRight.setRotation(180);
 		arrowLeft.setScale(0.7f);
 		arrowRight.setScale(0.7f);
@@ -229,20 +223,20 @@ public class GameScene {
 		hud.attachChild(arrowLeft);
 		
 		// ADD CONTROLLABLE BUTTONS
-		final Rectangle leftB = new Rectangle(0, 0, screenWidth / 4, screenHeight, this.activity.getVertexBufferObjectManager()) {
+		final Rectangle leftB = new Rectangle(0, 0, camera.getWidth() / 2, camera.getHeight(), this.activity.getVertexBufferObjectManager()) {
 			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
-				if(touchEvent.isActionDown() && player.playerY < GameManager.lengthOfTile * 6) {
+				if(touchEvent.isActionDown() && player.playerX > GameManager.lengthOfTile) {
 					sounds.playBlop();
-					player.moveCarNorth();
+					player.moveCarLeft();
 				}
 				return true;
 			};
 		};
-		final Rectangle rightB = new Rectangle(screenWidth / 2, 0, screenWidth / 2, screenHeight, this.activity.getVertexBufferObjectManager()) {
+		final Rectangle rightB = new Rectangle(camera.getWidth() / 2, 0, camera.getWidth() / 2, camera.getHeight(), this.activity.getVertexBufferObjectManager()) {
 			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
-				if(touchEvent.isActionDown() && player.playerY > GameManager.lengthOfTile) {
+				if(touchEvent.isActionDown() && player.playerX < GameManager.lengthOfTile * 6) {
 					sounds.playBlop();
-					player.moveCarSouth();
+					player.moveCarRight();
 				}
 				return true;
 			};

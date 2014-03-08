@@ -38,7 +38,6 @@ public class RetryScene {
 	private final static int RETRY_BTN_ID = 1;
 	
 	private LayoutGameActivity activity;
-	private Engine engine;
 	private Camera camera;
 	
 	private SceneManager sceneManager;
@@ -53,15 +52,14 @@ public class RetryScene {
 	
 	float screenWidth, screenHeight;
 	
-	public RetryScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager, mSoundManager sounds){
+	public RetryScene(LayoutGameActivity activity, Camera camera, SceneManager sceneManager, mSoundManager sounds){
 		this.activity = activity;
-		this.engine = engine;
 		this.camera = camera;
 		this.sceneManager = sceneManager;
 		this.sounds = sounds;
 		
-		screenWidth = camera.getHeight();
-		screenHeight = camera.getWidth();
+		screenWidth = camera.getWidth();
+		screenHeight = camera.getHeight();
 		
 		map = new WorldMap(this.activity, this.camera, 0);
 	}
@@ -87,16 +85,12 @@ public class RetryScene {
 			e.printStackTrace();
 		}
 		
-		sounds.loadSoundResources();
+		sounds.loadResources();
 	}
 	
-	public MenuScene createScene(){
+	public MenuScene createScene(boolean fromMenu){
 		
 		scene = new org.andengine.entity.scene.menu.MenuScene(camera);
-		
-		// SCENE SETUP
-		scene.setRotation(270);
-		scene.setPosition(0, camera.getHeight());
 
 		map.loadMap(scene);
 		initCrashedCar();

@@ -88,14 +88,14 @@ public class EnemyControl {
 		duration[enemyID] = r.nextFloat() * (maxDuration - minDuration) + minDuration;
 		lane[enemyID] = newLane(enemyID);
 		carType(enemyID);
-		MoveModifier moveModifier = new MoveModifier(duration[enemyID], -GameManager.lengthOfTile * 2, camera.getWidth() + GameManager.lengthOfTile*2, lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile){
+		MoveModifier moveModifier = new MoveModifier(duration[enemyID], lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile, -GameManager.lengthOfTile * 2, camera.getHeight() + GameManager.lengthOfTile*2){
 			@Override
 			protected void onModifierFinished(IEntity pItem) {
 				super.onModifierFinished(pItem);
 				duration[enemyID] = r.nextFloat() * (maxDuration - minDuration) + minDuration;
 				lane[enemyID] = newLane(enemyID);
 				addScore();
-				this.reset(duration[enemyID], -GameManager.lengthOfTile * 2, camera.getWidth() + GameManager.lengthOfTile*2, lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile);
+				this.reset(duration[enemyID], lane[enemyID] * GameManager.lengthOfTile, lane[enemyID] * GameManager.lengthOfTile, -GameManager.lengthOfTile * 2, camera.getHeight() + GameManager.lengthOfTile*2);
 			}
 		};
 		enemy[enemyID].registerEntityModifier(moveModifier);

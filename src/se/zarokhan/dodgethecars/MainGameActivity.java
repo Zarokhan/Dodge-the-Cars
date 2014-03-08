@@ -8,15 +8,18 @@ import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.LayoutGameActivity;
-
-import android.view.KeyEvent;
-
 import se.zarokhan.dodgethecars.SceneManager.AllScenes;
+import android.view.KeyEvent;
+import android.widget.RelativeLayout;
 
 public class MainGameActivity extends LayoutGameActivity{
-	
+	/*
 	static final int CAMERA_WIDTH = 1920;
 	static final int CAMERA_HEIGHT = 1080;
+	*/
+	
+	static final int CAMERA_WIDTH = 1080;
+	static final int CAMERA_HEIGHT = 1920;
 	
 	SceneManager sceneManager;
 	Camera camera;
@@ -24,11 +27,12 @@ public class MainGameActivity extends LayoutGameActivity{
 	private mSoundManager sounds;
 	
 	private int splashSeconds = 1;
+	private RelativeLayout relativeLayout;
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		EngineOptions options = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
+		EngineOptions options = new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
 		options.getAudioOptions().setNeedsMusic(true);
 		options.getAudioOptions().setNeedsSound(true);
 		return options;
@@ -39,9 +43,9 @@ public class MainGameActivity extends LayoutGameActivity{
 			OnCreateResourcesCallback pOnCreateResourcesCallback)
 			throws Exception {
 		
-		sounds = new mSoundManager(this);
+		sounds = new mSoundManager(this, camera);
 		sceneManager = new SceneManager(this, mEngine, camera, sounds);
-		sounds.loadSoundResources();
+		sounds.loadResources();
 		sceneManager.loadSplashResources();
 		
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
@@ -49,11 +53,13 @@ public class MainGameActivity extends LayoutGameActivity{
 
 	@Override
 	public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) throws Exception {
+		
 		pOnCreateSceneCallback.onCreateSceneFinished(sceneManager.createSplashScene());
 	}
 
 	@Override
 	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback) throws Exception {
+		
 		mEngine.registerUpdateHandler(new TimerHandler(splashSeconds, new ITimerCallback() {
 			@Override
 			public void onTimePassed(TimerHandler pTimerHandler) {
@@ -62,6 +68,7 @@ public class MainGameActivity extends LayoutGameActivity{
 					sceneManager.setCurrentSence(AllScenes.MENU);
 			}
 		}));
+		
 		pOnPopulateSceneCallback.onPopulateSceneFinished();
 	}
 	
@@ -98,7 +105,7 @@ public class MainGameActivity extends LayoutGameActivity{
 	    }
 	    return false; 
 	}
-	
+
 	@Override
 	protected int getLayoutID() {
 		return R.layout.activity_main_game;
@@ -106,7 +113,6 @@ public class MainGameActivity extends LayoutGameActivity{
 
 	@Override
 	protected int getRenderSurfaceViewID() {
-		return R.id.gameSurfaceView;
+		return R.id.SurfaceViewId;
 	}
-
 }

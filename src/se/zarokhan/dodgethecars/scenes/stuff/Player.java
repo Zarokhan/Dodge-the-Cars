@@ -30,20 +30,21 @@ public class Player{
 	}
 
 	public void loadPlayer(Scene scene, float screenWidth) {
-		playerX = screenWidth - GameManager.lengthOfTile * 5;
-		playerY = GameManager.lengthOfTile * Lane;
-		player = new Sprite(playerX, playerY, GameManager.lengthOfTile*2, GameManager.lengthOfTile -1, playerTR, this.activity.getVertexBufferObjectManager());
-		player.setRotation(180);
+		playerY = GameManager.lengthOfTile * 9 + 30;
+		playerX = GameManager.lengthOfTile * Lane;
+		player = new Sprite(playerX, playerY, GameManager.lengthOfTile -1, GameManager.lengthOfTile * 2, playerTR, this.activity.getVertexBufferObjectManager());
 		scene.attachChild(player);
 	}
-
-	public void moveCarNorth() {
-		playerY += GameManager.lengthOfTile;
+	
+	// VÄNSTER
+	public void moveCarLeft() {
+		playerX -= GameManager.lengthOfTile;
 		player.setPosition(playerX, playerY);
 	}
-
-	public void moveCarSouth() {
-		playerY -= GameManager.lengthOfTile;
+	
+	// HÖGER
+	public void moveCarRight() {
+		playerX += GameManager.lengthOfTile;
 		player.setPosition(playerX, playerY);
 	}
 	

@@ -1,16 +1,9 @@
 package se.zarokhan.dodgethecars.scenes;
 
-import java.io.IOException;
 import java.util.Random;
 
-import org.andengine.audio.music.Music;
-import org.andengine.audio.music.MusicFactory;
-import org.andengine.audio.sound.Sound;
-import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
-import org.andengine.engine.handler.timer.ITimerCallback;
-import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.MoveModifier;
 import org.andengine.entity.modifier.RotationModifier;
@@ -36,12 +29,7 @@ import org.andengine.opengl.texture.bitmap.BitmapTextureFormat;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.LayoutGameActivity;
 import org.andengine.util.HorizontalAlign;
-import org.andengine.util.color.Color;
-
 import android.graphics.Typeface;
-import android.view.KeyEvent;
-import android.widget.Toast;
-
 import se.zarokhan.dodgethecars.GameManager;
 import se.zarokhan.dodgethecars.SceneManager;
 import se.zarokhan.dodgethecars.SceneManager.AllScenes;
@@ -58,7 +46,6 @@ public class MenuScene {
 	private final static int CREDITS_BTN_ID = 2;
 	
 	private LayoutGameActivity activity;
-	private Engine engine;
 	private Camera camera;
 	private Random r;
 	
@@ -88,15 +75,14 @@ public class MenuScene {
 	private int rotDuration = 5;
 	private boolean scaBan, rotBan;
 	
-	public MenuScene(LayoutGameActivity activity, Engine engine, Camera camera, SceneManager sceneManager, mSoundManager sounds2) {
+	public MenuScene(LayoutGameActivity activity, Camera camera, SceneManager sceneManager, mSoundManager sounds) {
 		this.activity = activity;
-		this.engine = engine;
 		this.camera = camera;
 		this.sceneManager = sceneManager;
+		this.sounds = sounds;
 		
 		map = new WorldMap(activity, camera, 0);
 		r = new Random();
-		sounds = new mSoundManager(activity);
 	}
 
 	public void loadResources() {
@@ -126,19 +112,18 @@ public class MenuScene {
 			e.printStackTrace();
 		}
 		
-		sounds.loadSoundResources();
+		sounds.loadResources();
 	}
 
 	public org.andengine.entity.scene.menu.MenuScene createScene() {
-		float screenWidth = camera.getHeight();
-		float screenHeight = camera.getWidth();
+		float screenWidth = camera.getWidth();
+		float screenHeight = camera.getHeight();
 		menuScene = new org.andengine.entity.scene.menu.MenuScene(camera);
-		// SCENE SETUP
-		menuScene.setRotation(270);
-		menuScene.setPosition(0, camera.getHeight());
 		
 		// BACKGROUND SETUP
 		map.loadMap(menuScene);
+		//menuScene.attachChild(map.createScene(10));
+		
 		spawnCar(screenWidth, screenHeight);
 		
 		// BANNER/LOGO & banner animation
@@ -201,9 +186,13 @@ public class MenuScene {
 					break;
 				case HIGHSCORE_BTN_ID:
 					sounds.playBlop();
+					sceneManager.createRetryScene();
+					sceneManager.setCurrentSence(AllScenes.RETRY);
 					break;
 				case CREDITS_BTN_ID:
 					sounds.playBlop();
+					//sceneManager.createCreditScene();
+					//sceneManager.setCurrentSence(AllScenes.CREDITS);
 					break;
 				}
 				
@@ -217,13 +206,13 @@ public class MenuScene {
 	private void spawnCar(final float screenWidth, final float screenHeight) {
 		lane = r.nextInt(6)+1;
 		final Sprite car = new Sprite(-300, 0, carTR, this.activity.getVertexBufferObjectManager());
-		car.setRotation(90);
-		MoveModifier moveModifier = new MoveModifier(4, lane * GameManager.lengthOfTile - GameManager.lengthOfTile/2, lane * GameManager.lengthOfTile - GameManager.lengthOfTile/2, -GameManager.lengthOfTile * 2, screenHeight + GameManager.lengthOfTile*2){
+		car.setRotation(180);
+		MoveModifier moveModifier = new MoveModifier(4, lane * GameManager.lengthOfTile, lane * GameManager.lengthOfTile, -GameManager.lengthOfTile * 2, screenHeight + GameManager.lengthOfTile*2){
 			@Override
 			protected void onModifierFinished(IEntity pItem) {
 				super.onModifierFinished(pItem);
 				lane = r.nextInt(6)+1;
-				this.reset(4, lane * GameManager.lengthOfTile - GameManager.lengthOfTile/2, lane * GameManager.lengthOfTile - GameManager.lengthOfTile/2, -GameManager.lengthOfTile * 2, screenHeight + GameManager.lengthOfTile*2);
+				this.reset(4, lane * GameManager.lengthOfTile, lane * GameManager.lengthOfTile, -GameManager.lengthOfTile * 2, screenHeight + GameManager.lengthOfTile*2);
 			}
 		};
 		car.registerEntityModifier(moveModifier);

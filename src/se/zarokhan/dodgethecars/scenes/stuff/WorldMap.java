@@ -1,12 +1,18 @@
 package se.zarokhan.dodgethecars.scenes.stuff;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.MoveModifier;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.AutoParallaxBackground;
+import org.andengine.entity.scene.background.AutoVerticalParallaxBackground;
 import org.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
+import org.andengine.entity.scene.background.VerticalParallaxBackground;
+import org.andengine.entity.scene.background.VerticalParallaxBackground.VerticalParallaxEntity;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
+import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.LayoutGameActivity;
 import se.zarokhan.dodgethecars.GameManager;
@@ -21,6 +27,7 @@ public class WorldMap {
 	
 	// WORLD
 	private int speed;
+	private ITextureRegion bgTR;
 	
 	public WorldMap(LayoutGameActivity activity, Camera camera, int speed) {
 		this.activity = activity;
@@ -31,25 +38,32 @@ public class WorldMap {
 	public void loadResources(BuildableBitmapTextureAtlas textureTA) {
 		grassTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(textureTA, this.activity, "grass.png");
 		roadTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(textureTA, this.activity, "road.png");
-
 	}
 	
 	public void loadMap(Scene scene) {
-		
-		AutoParallaxBackground autoBG = new AutoParallaxBackground(0, 0, 0, speed);
+		Scene fixedScene = new Scene();
+		fixedScene.setRotation(180);
+		fixedScene.setPosition(0, -camera.getHeight());
+		AutoVerticalParallaxBackground autoBG = new AutoVerticalParallaxBackground(0, 0, 0, speed);
 		for(int i = 0; i < camera.getWidth()/GameManager.lengthOfTile; i++){
-			if(i == 1){
-				autoBG.attachParallaxEntity(new ParallaxEntity(speed, new Sprite(0, 0, grassTR, this.activity.getVertexBufferObjectManager())));
-			}
-			if(i > 0 && i < 7){
-				autoBG.attachParallaxEntity(new ParallaxEntity(speed, new Sprite(0, GameManager.lengthOfTile*i, roadTR, this.activity.getVertexBufferObjectManager())));
-			}
-			if(i == 7){
-				Sprite roadRotated = new Sprite(0, GameManager.lengthOfTile*i, grassTR, this.activity.getVertexBufferObjectManager());
-				roadRotated.setRotation(180);
-				autoBG.attachParallaxEntity(new ParallaxEntity(speed, roadRotated));
+			switch(i){
+			case 0:
+				Sprite grass1 = new Sprite(GameManager.lengthOfTile * i, 0, grassTR, this.activity.getVertexBufferObjectManager());
+				grass1.setRotation(270);
+				autoBG.attachVerticalParallaxEntity(new VerticalParallaxEntity(speed, grass1, 1));
+				break;
+			case 7:
+				Sprite grass2 = new Sprite(GameManager.lengthOfTile * i, 0, grassTR, this.activity.getVertexBufferObjectManager());
+				grass2.setRotation(90);
+				autoBG.attachVerticalParallaxEntity(new VerticalParallaxEntity(speed, grass2, 1));
+				break;
+			default:
+				Sprite road = new Sprite(GameManager.lengthOfTile * i, 0, roadTR, this.activity.getVertexBufferObjectManager());
+				road.setRotation(90);
+				autoBG.attachVerticalParallaxEntity(new VerticalParallaxEntity(speed, road, 1));
 			}
 		}
-		scene.setBackground(autoBG);
+		fixedScene.setBackground(autoBG);
+		scene.attachChild(fixedScene);
 	}
 }

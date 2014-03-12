@@ -8,15 +8,38 @@ import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.scene.Scene;
+import org.andengine.entity.scene.menu.MenuScene;
+import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
+import org.andengine.entity.scene.menu.item.IMenuItem;
+import org.andengine.entity.scene.menu.item.SpriteMenuItem;
+import org.andengine.entity.scene.menu.item.decorator.ScaleMenuItemDecorator;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSource;
+import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
+import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder.TextureAtlasBuilderException;
 import org.andengine.opengl.texture.bitmap.BitmapTextureFormat;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.LayoutGameActivity;
 
+import se.zarokhan.dodgethecars.SceneManager.AllScenes;
+
+import android.content.SharedPreferences;
+
 public class mSoundManager {
+	
+	private static final int MUSIC_ON_BTN_ID = 0, SOUND_ON_BTN_ID = 1, MUSIC_OFF_BTN_ID = 2, SOUND_OFF_BTN_ID = 3;
+	
+	private static final String PREFS_NAME = "GAME_SOUNDS_DATA";
+	
+	private static final String SOUND_KEY = "soundKey";
+	private static final String MUSIC_KEY = "musicKey";
+	
+	private SharedPreferences mSettings;
+	private SharedPreferences.Editor mEditor;
 	
 	private LayoutGameActivity activity;
 	private Camera camera;
@@ -24,22 +47,23 @@ public class mSoundManager {
 	private Sound blop, slide, crash, start;
 	private Music music;
 	
-	private Scene scene;
+	private MenuScene scene;
 	private Sprite musicOn, musicOff, soundOn, soundOff;
 	
+	private boolean mSoundEnable, mMusicEnable;
+	
 	// TEXTURE
-	private BuildableBitmapTextureAtlas TA;
 	private TextureRegion soundsOnTR, soundsOffTR, musicOnTR, musicOffTR;
 	
-	private Boolean playSounds = true;
-	private Boolean playMusic = true;
+	public Boolean playSounds = true;
+	public Boolean playMusic = true;
 	
 	public mSoundManager(LayoutGameActivity activity, Camera camera){
 		this.activity = activity;
 		this.camera = camera;
 	}
 	
-	public void loadResources(){
+	public void loadResources(BuildableBitmapTextureAtlas TA){
 		MusicFactory.setAssetBasePath("sfx/");
 		SoundFactory.setAssetBasePath("sfx/");
 		
@@ -52,28 +76,7 @@ public class mSoundManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		music.setVolume(0.7f);
-		
-		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/menu/");
-		TA = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		soundsOnTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA, this.activity, "sound on.png");
-		soundsOffTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA, this.activity, "sound off.png");
-		musicOnTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA, this.activity, "music on.png");
-		musicOffTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA, this.activity, "music off.png");
-		
-	}
-	
-	public Scene createScene(){
-		float screenWidth = camera.getHeight();
-		float screenHeight = camera.getWidth();
-		scene = new Scene();
-		// SCENE SETUP
-		scene.setRotation(270);
-		scene.setPosition(0, camera.getHeight());
-		
-		
-		
-		return scene;
+		music.setVolume(0.5f);
 	}
 	
 	public void playCrash() {

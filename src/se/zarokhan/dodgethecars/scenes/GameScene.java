@@ -93,6 +93,8 @@ public class GameScene {
 		hpTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "hp.png");
 		enemyControl.loadResources(entityTA);
 		
+		sounds.loadResources(entityTA);
+		
 		try {
 			mapTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 1));
 			mapTA.load();
@@ -108,8 +110,6 @@ public class GameScene {
 		} catch (TextureAtlasBuilderException e) {
 			e.printStackTrace();
 		}
-		
-		sounds.loadResources();
 	}
 	
 	public Scene createScene() {

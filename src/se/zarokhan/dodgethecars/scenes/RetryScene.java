@@ -77,14 +77,14 @@ public class RetryScene {
 		font = FontFactory.create(this.activity.getFontManager(), this.activity.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), GameManager.lengthOfTile);
 		font.load();
 		
+		sounds.loadResources(null);
+		
 		try {
 			retryTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
 			retryTA.load();
 		} catch (TextureAtlasBuilderException e) {
 			e.printStackTrace();
 		}
-		
-		sounds.loadResources();
 	}
 	
 	public MenuScene createScene(){

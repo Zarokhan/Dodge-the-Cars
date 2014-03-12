@@ -44,6 +44,7 @@ public class MenuScene {
 	private final static int PLAY_BTN_ID = 0;
 	private final static int HIGHSCORE_BTN_ID = 1;
 	private final static int CREDITS_BTN_ID = 2;
+	private final static int MUSIC_ON_BTN_ID = 3, SOUND_ON_BTN_ID = 4, MUSIC_OFF_BTN_ID = 5, SOUND_OFF_BTN_ID = 6;
 	
 	private LayoutGameActivity activity;
 	private Camera camera;
@@ -58,7 +59,9 @@ public class MenuScene {
 	
 	// TEXTURE
 	private BuildableBitmapTextureAtlas menuTA, mapTA;
-	private TextureRegion dodgecarsTR, playTR, highscoreTR, creditsTR, carTR;
+	private TextureRegion dodgecarsTR, playTR, highscoreTR, creditsTR, carTR, soundsOnTR, soundsOffTR, musicOnTR, musicOffTR;
+	
+	private IMenuItem soundOnBtn, musicOnBtn, musicOffBtn, soundOffBtn;
 	
 	// CAR
 	private int lane;
@@ -100,8 +103,15 @@ public class MenuScene {
 		carTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mapTA, this.activity, "player.png");
 		map.loadResources(mapTA);
 		
+		soundsOnTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mapTA, this.activity, "sound on.png");
+		soundsOffTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mapTA, this.activity, "sound off.png");
+		musicOnTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mapTA, this.activity, "music on.png");
+		musicOffTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mapTA, this.activity, "music off.png");
+		
 		font = FontFactory.create(this.activity.getFontManager(), this.activity.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 32*3f);
 		font.load();
+		
+		sounds.loadResources(menuTA);
 		
 		try {
 			menuTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
@@ -112,7 +122,6 @@ public class MenuScene {
 			e.printStackTrace();
 		}
 		
-		sounds.loadResources();
 	}
 
 	public org.andengine.entity.scene.menu.MenuScene createScene() {
@@ -157,9 +166,6 @@ public class MenuScene {
 			}
 		});
 		
-		// GAME VERSION
-		final Text GAME_STAGE = new Text(GameManager.lengthOfTile * 6 - GameManager.lengthOfTile/2, 0, font, GameManager.GAME_VERSION, new TextOptions(HorizontalAlign.LEFT), this.activity.getVertexBufferObjectManager());
-		
 		// MENU ITEMS
 		final IMenuItem buttonPlay = new ScaleMenuItemDecorator(new SpriteMenuItem(PLAY_BTN_ID, playTR, this.activity.getVertexBufferObjectManager()), unSelected, onSelected);
 		final IMenuItem buttonHighScore = new ScaleMenuItemDecorator(new SpriteMenuItem(HIGHSCORE_BTN_ID, highscoreTR, this.activity.getVertexBufferObjectManager()), unSelected, onSelected);
@@ -168,11 +174,42 @@ public class MenuScene {
 		buttonHighScore.setPosition((screenWidth - highscoreTR.getWidth())/2, screenHeight/7 * 4);
 		buttonCredits.setPosition((screenWidth - creditsTR.getWidth())/2, screenHeight/7 * 5);
 		
+		// Sound and Music on/off buttons
+		soundOnBtn = new ScaleMenuItemDecorator(new SpriteMenuItem(SOUND_ON_BTN_ID, soundsOnTR, this.activity.getVertexBufferObjectManager()), 1, 1);
+		soundOffBtn = new ScaleMenuItemDecorator(new SpriteMenuItem(SOUND_OFF_BTN_ID, soundsOffTR, this.activity.getVertexBufferObjectManager()), 1, 1);
+		musicOnBtn = new ScaleMenuItemDecorator(new SpriteMenuItem(MUSIC_ON_BTN_ID, musicOnTR, this.activity.getVertexBufferObjectManager()), 1, 1);
+		musicOffBtn = new ScaleMenuItemDecorator(new SpriteMenuItem(MUSIC_OFF_BTN_ID, musicOffTR, this.activity.getVertexBufferObjectManager()), 1, 1);
+		
+		soundOnBtn.setPosition(camera.getWidth() - soundsOnTR.getWidth() * 2, 0);
+		soundOffBtn.setPosition(camera.getWidth() - soundsOnTR.getWidth() * 2, 0);
+		musicOnBtn.setPosition(camera.getWidth() - musicOnTR.getWidth(), 0);
+		musicOffBtn.setPosition(camera.getWidth() - musicOnTR.getWidth(), 0);
+		
+		menuScene.addMenuItem(soundOnBtn);
+		menuScene.addMenuItem(soundOffBtn);
+		menuScene.addMenuItem(musicOnBtn);
+		menuScene.addMenuItem(musicOffBtn);
+		
 		menuScene.attachChild(banner);
-		menuScene.attachChild(GAME_STAGE);
 		menuScene.addMenuItem(buttonPlay);
 		menuScene.addMenuItem(buttonHighScore);
 		menuScene.addMenuItem(buttonCredits);
+		
+		if(sounds.playMusic){
+			musicOffBtn.setVisible(false);
+			musicOnBtn.setVisible(true);
+		}else{
+			musicOnBtn.setVisible(false);
+			musicOffBtn.setVisible(true);
+		}
+		
+		if(sounds.playSounds){
+			soundOffBtn.setVisible(false);
+			soundOnBtn.setVisible(true);
+		}else{
+			soundOnBtn.setVisible(false);
+			soundOffBtn.setVisible(true);
+		}
 		
 		menuScene.setOnMenuItemClickListener(new IOnMenuItemClickListener() {
 			@Override
@@ -193,6 +230,26 @@ public class MenuScene {
 					sounds.playBlop();
 					sceneManager.createCreditScene();
 					sceneManager.setCurrentSence(AllScenes.CREDITS);
+					break;
+				case SOUND_ON_BTN_ID:
+					sounds.playSounds = false;
+					soundOnBtn.setVisible(false);
+					soundOffBtn.setVisible(true);
+					break;
+				case SOUND_OFF_BTN_ID:
+					sounds.playSounds = true;
+					soundOnBtn.setVisible(true);
+					soundOffBtn.setVisible(false);
+					break;
+				case MUSIC_ON_BTN_ID:
+					sounds.playMusic = false;
+					musicOnBtn.setVisible(false);
+					musicOffBtn.setVisible(true);
+					break;
+				case MUSIC_OFF_BTN_ID:
+					sounds.playMusic = true;
+					musicOnBtn.setVisible(true);
+					musicOffBtn.setVisible(false);
 					break;
 				}
 				

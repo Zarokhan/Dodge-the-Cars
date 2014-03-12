@@ -81,7 +81,7 @@ public class CreditsScene {
 		map.loadMap(scene);
 		
 		final Sprite credits = new Sprite((camera.getWidth()-creditsTR.getWidth())/2, GameManager.lengthOfTile * 2, creditsTR, this.activity.getVertexBufferObjectManager());
-		final Sprite text = new Sprite((camera.getWidth()-textTR.getWidth())/2, GameManager.lengthOfTile * 3, textTR, this.activity.getVertexBufferObjectManager());
+		final Sprite text = new Sprite((camera.getWidth()-textTR.getWidth())/2, GameManager.lengthOfTile * 4, textTR, this.activity.getVertexBufferObjectManager());
 		
 		final IMenuItem buttonHome = new ScaleMenuItemDecorator(new SpriteMenuItem(HOME_BTN_ID, homeTR, this.activity.getVertexBufferObjectManager()), 1, 1);
 		buttonHome.setPosition(camera.getWidth()/2 - homeTR.getWidth()/2, camera.getHeight() - homeTR.getHeight()*2);

@@ -26,7 +26,7 @@ public class MainGameActivity extends LayoutGameActivity{
 	
 	private mSoundManager sounds;
 	
-	private int splashSeconds = 1;
+	private int splashSeconds = 2;
 	private RelativeLayout relativeLayout;
 	
 	@Override
@@ -45,7 +45,7 @@ public class MainGameActivity extends LayoutGameActivity{
 		
 		sounds = new mSoundManager(this, camera);
 		sceneManager = new SceneManager(this, mEngine, camera, sounds);
-		sounds.loadResources();
+		sounds.loadResources(null);
 		sceneManager.loadSplashResources();
 		
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
@@ -86,7 +86,6 @@ public class MainGameActivity extends LayoutGameActivity{
 		if (!sounds.isMusicNull() && sounds.isMusicPlaying()){
 			sounds.pause();
 		}
-		
 		super.onPauseGame();
 	}
 	

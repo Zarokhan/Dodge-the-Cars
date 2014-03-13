@@ -1,18 +1,12 @@
 package se.zarokhan.dodgethecars.scenes.stuff;
 
 import org.andengine.engine.camera.Camera;
-import org.andengine.entity.IEntity;
-import org.andengine.entity.modifier.MoveModifier;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.entity.scene.background.AutoVerticalParallaxBackground;
-import org.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
-import org.andengine.entity.scene.background.VerticalParallaxBackground;
 import org.andengine.entity.scene.background.VerticalParallaxBackground.VerticalParallaxEntity;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
-import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.LayoutGameActivity;
 import se.zarokhan.dodgethecars.GameManager;
@@ -27,7 +21,6 @@ public class WorldMap {
 	
 	// WORLD
 	private int speed;
-	private ITextureRegion bgTR;
 	
 	public WorldMap(LayoutGameActivity activity, Camera camera, int speed) {
 		this.activity = activity;

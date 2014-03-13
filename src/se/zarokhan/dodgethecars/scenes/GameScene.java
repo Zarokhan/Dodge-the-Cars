@@ -9,11 +9,7 @@ import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
-import org.andengine.entity.text.Text;
-import org.andengine.entity.text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.font.Font;
-import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -24,10 +20,6 @@ import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder
 import org.andengine.opengl.texture.bitmap.BitmapTextureFormat;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.LayoutGameActivity;
-import org.andengine.util.HorizontalAlign;
-import org.andengine.util.color.Color;
-
-import android.graphics.Typeface;
 import android.util.Log;
 import se.zarokhan.dodgethecars.GameManager;
 import se.zarokhan.dodgethecars.SceneManager;
@@ -53,12 +45,8 @@ public class GameScene {
 	private Scene scene;
 	
 	// TEXTURE
-	private BuildableBitmapTextureAtlas mapTA;
 	private BuildableBitmapTextureAtlas entityTA;
-	private ITextureRegion hearthTR, arrowTR, hpTR;
-	
-	// TEXT
-	private Font font;
+	private ITextureRegion hearthTR, arrowTR;
 	
 	// HUD
 	HUD hud;
@@ -80,27 +68,16 @@ public class GameScene {
 
 	public void loadResources() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		mapTA = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.REPEATING_NEAREST);
 		entityTA = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		
-		map.loadResources(mapTA);
+		map.loadResources(entityTA);
 		
-		font = FontFactory.create(this.activity.getFontManager(), this.activity.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 32*3f);
-		font.load();
 		player.loadResources(entityTA);
 		arrowTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "arrow.png");
 		hearthTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "hearth.png");
-		hpTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(entityTA, this.activity, "hp.png");
 		enemyControl.loadResources(entityTA);
 		
-		sounds.loadResources(entityTA);
-		
-		try {
-			mapTA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 1));
-			mapTA.load();
-		} catch (TextureAtlasBuilderException e) {
-			e.printStackTrace();
-		}
+		sounds.loadResources();
 		
 		try {
 			entityTA
@@ -119,7 +96,6 @@ public class GameScene {
 		map.loadMap(scene);
 		player.loadPlayer(scene, camera.getWidth());
 		enemyControl.init(scene);
-		//enemyControl();
 		initCollision();
 		initHUD();
 		
@@ -170,7 +146,7 @@ public class GameScene {
 			enemyControl.resetEnemy(enemyID, scene);
 		}
 	}
-	
+
 	public void clearScene() {
 		camera.setHUD(null);
 		scene.clearChildScene();
@@ -198,19 +174,14 @@ public class GameScene {
 		hud = new HUD();
 		
 		// ADD THE HEARTHS
-		final Sprite hpText = new Sprite(0, (GameManager.lengthOfTile - hpTR.getHeight())/2, hpTR, this.activity.getVertexBufferObjectManager());
-		hud.attachChild(hpText);
+		//final Sprite hpText = new Sprite(0, (GameManager.lengthOfTile - hpTR.getHeight())/2, hpTR, this.activity.getVertexBufferObjectManager());
+		//hud.attachChild(hpText);
 		hearth = new Sprite[GameManager.getInstance().getHealth()];
 		for(int i = 0; i < GameManager.getInstance().getHealth(); i++){
-			hearth[i] = new Sprite(GameManager.lengthOfTile + (i * GameManager.lengthOfTile), 0, hearthTR, this.activity.getVertexBufferObjectManager());
+			hearth[i] = new Sprite((i * GameManager.lengthOfTile), 0, hearthTR, this.activity.getVertexBufferObjectManager());
 			hearth[i].setScale(0.7f);
 			hud.attachChild(hearth[i]);
 		}
-		
-		// GAME VERSION
-		final Text version = new Text(GameManager.lengthOfTile * 6 - GameManager.lengthOfTile/2, 0, font, GameManager.GAME_VERSION, new TextOptions(HorizontalAlign.LEFT), this.activity.getVertexBufferObjectManager());
-		version.setColor(Color.WHITE);
-		hud.attachChild(version);
 		
 		// ADD THE ARROWS
 		final Sprite arrowLeft = new Sprite(0, camera.getHeight()/6 * 4, arrowTR, this.activity.getVertexBufferObjectManager());

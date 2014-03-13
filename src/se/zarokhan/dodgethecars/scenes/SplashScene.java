@@ -16,7 +16,10 @@ import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.LayoutGameActivity;
 import org.andengine.util.color.Color;
 
+import android.util.Log;
+
 import se.zarokhan.dodgethecars.SceneManager;
+import se.zarokhan.dodgethecars.UserData;
 import se.zarokhan.dodgethecars.mSoundManager;
 
 public class SplashScene {
@@ -36,6 +39,9 @@ public class SplashScene {
 		this.activity = activity;
 		this.camera = camera;
 		this.sceneManager = sceneManager;
+		
+		UserData.getInstance().init(activity);
+		Log.e("TEST", "TEST");
 	}
 
 	public void loadResources() {
@@ -61,7 +67,7 @@ public class SplashScene {
 	
 	public Scene createScene() {
 		scene = new Scene();
-		scene.setBackground(new Background(Color.WHITE));
+		scene.setBackground(new Background(Color.BLACK));
 		
 		final Sprite splash = new Sprite(camera.getWidth()/2 - splashTR.getWidth()/2, camera.getHeight()/2 - splashTR.getHeight()/2, splashTR, this.activity.getVertexBufferObjectManager());
 		

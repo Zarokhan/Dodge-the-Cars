@@ -38,7 +38,7 @@ public class SceneManager {
 		splashSceneC = new SplashScene(this.activity, this.camera, this, sounds);
 		menuSceneC = new MenuScene(this.activity, this.camera, this, sounds);
 		gameSceneC = new GameScene(this.activity, this.engine, this.camera, this, sounds);
-		retrySceneC = new RetryScene(activity, camera, this, sounds);
+		retrySceneC = new RetryScene(activity, camera, engine, this, sounds);
 		creditScene = new CreditsScene(activity, camera, this, sounds);
 		highscoreScene = new HighScoreScene(activity, camera, this, sounds);
 	}

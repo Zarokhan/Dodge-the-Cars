@@ -19,7 +19,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-2549819883008079/3739223148"
+        ads:adUnitId=""
         ads:loadAdOnCreate="true" >
     </com.google.ads.AdView>
      

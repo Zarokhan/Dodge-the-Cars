@@ -10,13 +10,8 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.LayoutGameActivity;
 import se.zarokhan.dodgethecars.SceneManager.AllScenes;
 import android.view.KeyEvent;
-import android.widget.RelativeLayout;
 
 public class MainGameActivity extends LayoutGameActivity{
-	/*
-	static final int CAMERA_WIDTH = 1920;
-	static final int CAMERA_HEIGHT = 1080;
-	*/
 	
 	static final int CAMERA_WIDTH = 1080;
 	static final int CAMERA_HEIGHT = 1920;
@@ -27,7 +22,6 @@ public class MainGameActivity extends LayoutGameActivity{
 	private mSoundManager sounds;
 	
 	private int splashSeconds = 2;
-	private RelativeLayout relativeLayout;
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -39,13 +33,11 @@ public class MainGameActivity extends LayoutGameActivity{
 	}
 
 	@Override
-	public void onCreateResources(
-			OnCreateResourcesCallback pOnCreateResourcesCallback)
-			throws Exception {
+	public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback) throws Exception {
 		
-		sounds = new mSoundManager(this, camera);
+		sounds = new mSoundManager(this);
 		sceneManager = new SceneManager(this, mEngine, camera, sounds);
-		sounds.loadResources(null);
+		sounds.loadResources();
 		sceneManager.loadSplashResources();
 		
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
@@ -64,8 +56,8 @@ public class MainGameActivity extends LayoutGameActivity{
 			@Override
 			public void onTimePassed(TimerHandler pTimerHandler) {
 				mEngine.unregisterUpdateHandler(pTimerHandler);
-					sceneManager.createMenuScene();
-					sceneManager.setCurrentSence(AllScenes.MENU);
+				sceneManager.createMenuScene();
+				sceneManager.setCurrentSence(AllScenes.MENU);
 			}
 		}));
 		

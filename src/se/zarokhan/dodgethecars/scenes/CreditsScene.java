@@ -39,8 +39,8 @@ public class CreditsScene {
 	private WorldMap map;
 	private org.andengine.entity.scene.menu.MenuScene scene;
 	
-	private BuildableBitmapTextureAtlas TA, TA2;
-	private TextureRegion creditsTR, homeTR, textTR;
+	private BuildableBitmapTextureAtlas TA;
+	private TextureRegion creditsTR, homeTR, gamebyTR, zarokhanTR, robinTR, musicbyTR, alexTR;
 	private Font font;
 	
 	public CreditsScene(LayoutGameActivity activity, Camera camera, SceneManager sceneManager, mSoundManager sounds) {
@@ -55,12 +55,16 @@ public class CreditsScene {
 	public void loadResources(){
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		TA = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		TA2 = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 1024, 1024, BitmapTextureFormat.RGBA_4444, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		map.loadResources(TA);
 		
 		creditsTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA, activity, "menu/credits.png");
 		homeTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA, activity, "home.png");
-		textTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA2, this.activity, "credits.png");
+		gamebyTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA, this.activity, "credits/game by.png");
+		zarokhanTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA, this.activity, "credits/zarokhan.png");
+		robinTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA, this.activity, "credits/robin.png");
+		musicbyTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA, this.activity, "credits/music by.png");
+		alexTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(TA, this.activity, "credits/alexander.png");
+		
 		
 		font = FontFactory.create(this.activity.getFontManager(), this.activity.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), GameManager.lengthOfTile);
 		font.load();
@@ -68,9 +72,6 @@ public class CreditsScene {
 		try {
 			TA.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(1, 1, 0));
 			TA.load();
-			
-			TA2.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 0, 0));
-			TA2.load();
 		} catch (TextureAtlasBuilderException e) {
 			e.printStackTrace();
 		}
@@ -80,8 +81,18 @@ public class CreditsScene {
 		scene = new org.andengine.entity.scene.menu.MenuScene(camera);
 		map.loadMap(scene);
 		
+		int padding = 50;
+		
 		final Sprite credits = new Sprite((camera.getWidth()-creditsTR.getWidth())/2, GameManager.lengthOfTile * 2, creditsTR, this.activity.getVertexBufferObjectManager());
-		final Sprite text = new Sprite((camera.getWidth()-textTR.getWidth())/2, GameManager.lengthOfTile * 4, textTR, this.activity.getVertexBufferObjectManager());
+		final Sprite gameby = new Sprite((camera.getWidth()-gamebyTR.getWidth())/2, GameManager.lengthOfTile * 2 + creditsTR.getHeight() + padding * 2, gamebyTR, this.activity.getVertexBufferObjectManager());
+		final Sprite robin = new Sprite((camera.getWidth()-robinTR.getWidth())/2, GameManager.lengthOfTile * 2 + creditsTR.getHeight() + gamebyTR.getHeight() + padding * 3, robinTR, this.activity.getVertexBufferObjectManager());
+		final Sprite musicby = new Sprite((camera.getWidth()-musicbyTR.getWidth())/2, GameManager.lengthOfTile * 2 + creditsTR.getHeight() + gamebyTR.getHeight() + robinTR.getHeight() + padding * 5, musicbyTR, this.activity.getVertexBufferObjectManager());
+		final Sprite alex = new Sprite((camera.getWidth()-alexTR.getWidth())/2, GameManager.lengthOfTile * 2 + creditsTR.getHeight() + gamebyTR.getHeight() + robinTR.getHeight() + musicbyTR.getHeight() + padding * 6, alexTR, this.activity.getVertexBufferObjectManager());
+		
+		scene.attachChild(gameby);
+		scene.attachChild(alex);
+		scene.attachChild(musicby);
+		scene.attachChild(robin);
 		
 		final IMenuItem buttonHome = new ScaleMenuItemDecorator(new SpriteMenuItem(HOME_BTN_ID, homeTR, this.activity.getVertexBufferObjectManager()), 1, 1);
 		buttonHome.setPosition(camera.getWidth()/2 - homeTR.getWidth()/2, camera.getHeight() - homeTR.getHeight()*2);
@@ -104,7 +115,6 @@ public class CreditsScene {
 		});
 		
 		scene.attachChild(credits);
-		scene.attachChild(text);
 		return scene;
 	}
 
